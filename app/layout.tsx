@@ -1,27 +1,20 @@
 import type { Metadata } from "next"
-import { Playfair_Display, DM_Sans } from "next/font/google"
+import { Outfit } from "next/font/google"
 import "./globals.css"
 
-const playfair = Playfair_Display({
+const outfit = Outfit({
   subsets: ["latin"],
-  variable: "--font-display",
-  display: "swap",
-})
-
-const dmSans = DM_Sans({
-  subsets: ["latin"],
-  variable: "--font-sans",
   display: "swap",
 })
 
 export const metadata: Metadata = {
   title: "Guadalupe Broker SRL | Corredora de Seguros · Santa Fe",
   description:
-    "Más de 60 años y 3 generaciones protegiendo familias y empresas en Santa Fe. Automotor, Hogar, Salud, ART y más.",
+    "Más de 60 años y 3 generaciones protegiendo familias y empresas en Santa Fe. Automotor, Hogar, Salud, ART y mas.",
   openGraph: {
     title: "Guadalupe Broker SRL | Corredora de Seguros",
     description:
-      "Más de 60 años protegiendo familias y empresas en Santa Fe.",
+      "Mas de 60 anos protegiendo familias y empresas en Santa Fe.",
     siteName: "Guadalupe Broker",
     locale: "es_AR",
     type: "website",
@@ -34,11 +27,10 @@ export default function RootLayout({
   children: React.ReactNode
 }>) {
   return (
-    <html
-      lang="es"
-      className={`${playfair.variable} ${dmSans.variable} h-full antialiased`}
-    >
-      <body className="flex min-h-full flex-col font-sans">{children}</body>
+    <html lang="es" className={`${outfit.className} h-full antialiased`}>
+      <body className="flex min-h-full flex-col font-sans">
+        {children}
+      </body>
     </html>
   )
 }

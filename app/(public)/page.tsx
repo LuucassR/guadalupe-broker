@@ -1,20 +1,18 @@
 import Hero from "@/components/sections/Hero"
-import Stats from "@/components/sections/Stats"
-import CoverageGrid from "@/components/sections/CoverageGrid"
-import InsurerStrip from "@/components/sections/InsurerStrip"
-import WhyUs from "@/components/sections/WhyUs"
-import Reviews from "@/components/sections/Reviews"
+import BentoGrid from "@/components/sections/BentoGrid"
+import MarqueeStrip from "@/components/sections/MarqueeStrip"
+import PinnedShowcase from "@/components/sections/PinnedShowcase"
+import Testimonials from "@/components/sections/Testimonials"
 import CtaBanner from "@/components/sections/CtaBanner"
 
 export default function HomePage() {
   return (
     <>
       <Hero />
-      <Stats />
-      <CoverageGrid />
-      <InsurerStrip />
-      <WhyUs />
-      <Reviews />
+      <BentoGrid />
+      <MarqueeStrip />
+      <PinnedShowcase />
+      <Testimonials />
       <CtaBanner />
     </>
   )

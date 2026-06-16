@@ -10,7 +10,9 @@ export default function PublicLayout({
   return (
     <>
       <Navbar />
-      <main className="flex-1">{children}</main>
+      <main className="w-full max-w-full flex-1 overflow-x-hidden">
+        {children}
+      </main>
       <Footer />
       <WhatsAppFAB />
     </>

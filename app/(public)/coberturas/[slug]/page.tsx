@@ -25,7 +25,7 @@ export default async function CoverageDetailPage({ params }: Props) {
   return (
     <div className="pt-32 pb-20">
       <div className="mx-auto max-w-[1140px] px-6">
-        <h1 className="text-[clamp(36px,5vw,52px)] font-extrabold -tracking-[0.03em]">
+        <h1 className="text-[clamp(36px,5vw,52px)] font-extrabold tracking-[-0.03em]">
           {coverage.name}
         </h1>
       </div>

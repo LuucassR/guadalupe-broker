@@ -1,70 +1,89 @@
 export const COVERAGES = [
-  { slug: "automotor", name: "Automotor", icon: "Car", desc: "Protección completa para tu vehículo, con las mejores coberturas del mercado." },
-  { slug: "hogar", name: "Hogar", icon: "Home", desc: "Tu patrimonio protegido contra imprevistos. Incendio, robo y更多." },
-  { slug: "salud", name: "Salud", icon: "HeartPulse", desc: "Accedé a la mejor atención médica sin preocuparte por los costos." },
-  { slug: "art", name: "ART", icon: "Shield", desc: "Cubrí a tus empleados según la ley. Seguridad laboral sin riesgos." },
-  { slug: "comercio", name: "Comercio", icon: "Store", desc: "Protegé tu negocio contra robos, incendios y responsabilidad civil." },
-  { slug: "transporte", name: "Transporte", icon: "Truck", desc: "Seguros para flotas y cargas. Tu mercadería siempre protegida." },
-  { slug: "vida-accidentes", name: "Vida y Accidentes", icon: "Heart", desc: "Los que más te necesitan merecen tu tranquilidad futura." },
-  { slug: "responsabilidad-civil", name: "Resp. Civil", icon: "Scale", desc: "Responsabilidad profesional y general. Protección ante terceros." },
+  { slug: "automotor", name: "Automotor", icon: "Car", desc: "Proteccion completa para tu vehiculo con las mejores coberturas del mercado automotor argentino." },
+  { slug: "hogar", name: "Hogar", icon: "Home", desc: "Tu patrimonio protegido contra incendios, robos y todo imprevisto que pueda surgir." },
+  { slug: "salud", name: "Salud", icon: "HeartPulse", desc: "Accede a la mejor atencion medica sin preocuparte por los costos de tus tratamientos." },
+  { slug: "comercio", name: "Comercio", icon: "Store", desc: "Protege tu negocio contra robos, incendios y responsabilidad civil hacia terceros." },
+  { slug: "art", name: "ART", icon: "Shield", desc: "Asegura a tus empleados segun la ley con la cobertura de riesgos del trabajo." },
+  { slug: "transporte", name: "Transporte", icon: "Truck", desc: "Seguros para flotas y cargas. Tu mercaderia siempre protegida en cada viaje." },
+  { slug: "vida-accidentes", name: "Vida y Accidentes", icon: "Heart", desc: "Los que mas te necesitan merecen tu tranquilidad y proteccion futura." },
+  { slug: "responsabilidad-civil", name: "Resp. Civil", icon: "Scale", desc: "Responsabilidad profesional y general para particulares y empresas." },
+]
+
+export const BENTO_ITEMS = [
+  {
+    slug: "automotor",
+    name: "Seguro Automotor",
+    desc: "Cobertura integral para tu vehiculo con las mejores companias del pais.",
+    image: "https://picsum.photos/seed/automotor/800/600",
+    span: "lg:col-span-2 lg:row-span-2",
+  },
+  {
+    slug: "hogar",
+    name: "Seguro de Hogar",
+    desc: "Proteccion completa para tu patrimonio familiar.",
+    image: "https://picsum.photos/seed/hogar/400/300",
+    span: "lg:col-span-1 lg:row-span-1",
+  },
+  {
+    slug: "salud",
+    name: "Seguro de Salud",
+    desc: "Acceso a la mejor atencion medica privada.",
+    image: "https://picsum.photos/seed/salud/400/300",
+    span: "lg:col-span-1 lg:row-span-1",
+  },
+  {
+    slug: "empresas",
+    name: "Seguros Empresariales",
+    desc: "Soluciones integrales para tu empresa, comercio o industria.",
+    image: "https://picsum.photos/seed/empresas/800/400",
+    span: "lg:col-span-2 lg:row-span-1",
+  },
 ]
 
 export const INSURERS = [
   "Sancor Seguros",
-  "Prevención ART",
-  "Prevención Salud",
+  "Prevencion ART",
+  "Prevencion Salud",
   "Banco del Sol",
   "Prendo",
 ]
 
 export const REVIEWS = [
   {
-    name: "María A.",
+    name: "Maria A.",
     initials: "MA",
     rating: 5,
-    text: "Excelente atención, muy profesionales. Me asesoraron perfecto para el seguro de mi auto y conseguí una cobertura mucho mejor a un precio accesible. Los recomiendo sin dudarlo.",
+    text: "Excelente atencion, muy profesionales. Me asesoraron perfecto para el seguro de mi auto y consegui una cobertura mucho mejor a un precio accesible.",
   },
   {
     name: "Carlos R.",
     initials: "CR",
     rating: 5,
-    text: "Llevo años siendo cliente y siempre me atendieron de maravilla. Cuando tuve un siniestro, me acompañaron en todo el proceso. Un equipo de confianza total.",
+    text: "Llevo anos siendo cliente y siempre me atendieron de maravilla. Cuando tuve un siniestro, me acompanaron en todo el proceso. Confianza total.",
   },
   {
     name: "Laura P.",
     initials: "LP",
     rating: 5,
-    text: "Muy buena predisposición y conocimiento del mercado asegurador. Me explicaron todas las opciones con paciencia y claridad. Excelente servicio.",
+    text: "Muy buena predisposicion y conocimiento del mercado asegurador. Me explicaron todas las opciones con paciencia y claridad. Excelente servicio.",
   },
-]
-
-export const STATS = [
-  { value: "+60", label: "Años de trayectoria" },
-  { value: "4.9", label: "Calificación en Google" },
-  { value: "2", label: "Sucursales activas" },
-  { value: "+10", label: "Compañías aliadas" },
 ]
 
 export const WHY_US = [
   {
-    icon: "Compass",
     title: "Asesoramiento personalizado",
-    desc: "Analizamos tu situación y te recomendamos la cobertura justa, sin excesos ni letra chica.",
+    desc: "Analizamos tu situacion y te recomendamos la cobertura justa, sin excesos ni letra chica.",
+    image: "https://picsum.photos/seed/asesor/600/800",
   },
   {
-    icon: "Zap",
-    title: "Respuesta rápida",
+    title: "Respuesta rapida",
     desc: "Respondemos consultas y siniestros con agilidad. Tu tiempo es valioso para nosotros.",
+    image: "https://picsum.photos/seed/respuesta/600/800",
   },
   {
-    icon: "Handshake",
     title: "Trato humano",
-    desc: "Conocemos a nuestros clientes por su nombre, no por un número de póliza.",
-  },
-  {
-    icon: "MapPin",
-    title: "Presencia local",
-    desc: "Dos sucursales en Santa Fe. Siempre cerca cuando más nos necesitás.",
+    desc: "Conocemos a nuestros clientes por su nombre, no por un numero de poliza.",
+    image: "https://picsum.photos/seed/trato/600/800",
   },
 ]
 
@@ -87,7 +106,7 @@ export const SITE_CONFIG = {
   name: "Guadalupe Broker",
   tagline: "Corredora de Seguros",
   description:
-    "Más de 60 años y 3 generaciones protegiendo familias y empresas en Santa Fe.",
+    "Mas de 60 anos y 3 generaciones protegiendo familias y empresas en Santa Fe.",
   whatsappNumber: process.env.NEXT_PUBLIC_WHATSAPP_NUMBER ?? "5493426135470",
   whatsappMessage:
     process.env.NEXT_PUBLIC_WHATSAPP_MESSAGE ??
