@@ -3,6 +3,8 @@
 @theme {
   --color-brand-rose: #c84b8c;
   --color-brand-violet: #5b4dc8;
+  --color-brand-dark: #0f0b1a;
+  --color-brand-slate: #1a1528;
   --color-bg-page: #fafafa;
   --color-bg-surface: #ffffff;
   --color-bg-muted: #f4f3f8;
@@ -12,7 +14,8 @@
   --color-border: #e5e3ee;
   --color-whatsapp: #25d366;
 
-  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-display: "Playfair Display", ui-serif, Georgia, serif;
+  --font-sans: "DM Sans", ui-sans-serif, system-ui, sans-serif;
 }
 
 html {
@@ -22,5 +25,54 @@ html {
 body {
   background-color: var(--color-bg-page);
   color: var(--color-text-primary);
-  font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+  font-family: var(--font-sans);
+}
+
+::selection {
+  background-color: #c84b8c33;
+  color: #111827;
+}
+
+@keyframes fade-up {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes morph {
+  0%, 100% { border-radius: 60% 40% 30% 70% / 60% 30% 70% 40%; }
+  50% { border-radius: 30% 60% 70% 40% / 50% 60% 30% 60%; }
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0px) scale(1); }
+  50% { transform: translateY(-20px) scale(1.02); }
+}
+
+@keyframes grain {
+  0%, 100% { transform: translate(0, 0); }
+  10% { transform: translate(-5%, -5%); }
+  20% { transform: translate(-10%, 5%); }
+  30% { transform: translate(5%, -10%); }
+  40% { transform: translate(-5%, 15%); }
+  50% { transform: translate(-10%, 10%); }
+  60% { transform: translate(15%, 0%); }
+  70% { transform: translate(0%, 10%); }
+  80% { transform: translate(-15%, 0%); }
+  90% { transform: translate(10%, 5%); }
+}
+
+@keyframes marquee {
+  from { transform: translateX(0); }
+  to { transform: translateX(-50%); }
 }

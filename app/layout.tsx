@@ -1,9 +1,16 @@
 import type { Metadata } from "next"
-import { Inter } from "next/font/google"
+import { Playfair_Display, DM_Sans } from "next/font/google"
 import "./globals.css"
 
-const inter = Inter({
+const playfair = Playfair_Display({
   subsets: ["latin"],
+  variable: "--font-display",
+  display: "swap",
+})
+
+const dmSans = DM_Sans({
+  subsets: ["latin"],
+  variable: "--font-sans",
   display: "swap",
 })
 
@@ -27,8 +34,11 @@ export default function RootLayout({
   children: React.ReactNode
 }>) {
   return (
-    <html lang="es" className={`${inter.className} h-full antialiased`}>
-      <body className="flex min-h-full flex-col">{children}</body>
+    <html
+      lang="es"
+      className={`${playfair.variable} ${dmSans.variable} h-full antialiased`}
+    >
+      <body className="flex min-h-full flex-col font-sans">{children}</body>
     </html>
   )
 }

@@ -1,17 +1,12 @@
 export const COVERAGES = [
-  { slug: "automotor", name: "Automotor", icon: "🚗", bg: "#FFF3F8" },
-  { slug: "hogar", name: "Hogar", icon: "🏠", bg: "#F0F0FF" },
-  { slug: "salud", name: "Salud", icon: "🩺", bg: "#F0FDF4" },
-  { slug: "art", name: "ART", icon: "🦺", bg: "#FFF7ED" },
-  { slug: "comercio", name: "Comercio", icon: "🏪", bg: "#FDF4FF" },
-  { slug: "transporte", name: "Transporte", icon: "🚛", bg: "#EFF8FF" },
-  {
-    slug: "vida-accidentes",
-    name: "Vida y Accidentes",
-    icon: "❤️",
-    bg: "#FEF0F0",
-  },
-  { slug: "responsabilidad-civil", name: "Resp. Civil", icon: "⚖️", bg: "#F5F3FF" },
+  { slug: "automotor", name: "Automotor", icon: "Car", desc: "Protección completa para tu vehículo, con las mejores coberturas del mercado." },
+  { slug: "hogar", name: "Hogar", icon: "Home", desc: "Tu patrimonio protegido contra imprevistos. Incendio, robo y更多." },
+  { slug: "salud", name: "Salud", icon: "HeartPulse", desc: "Accedé a la mejor atención médica sin preocuparte por los costos." },
+  { slug: "art", name: "ART", icon: "Shield", desc: "Cubrí a tus empleados según la ley. Seguridad laboral sin riesgos." },
+  { slug: "comercio", name: "Comercio", icon: "Store", desc: "Protegé tu negocio contra robos, incendios y responsabilidad civil." },
+  { slug: "transporte", name: "Transporte", icon: "Truck", desc: "Seguros para flotas y cargas. Tu mercadería siempre protegida." },
+  { slug: "vida-accidentes", name: "Vida y Accidentes", icon: "Heart", desc: "Los que más te necesitan merecen tu tranquilidad futura." },
+  { slug: "responsabilidad-civil", name: "Resp. Civil", icon: "Scale", desc: "Responsabilidad profesional y general. Protección ante terceros." },
 ]
 
 export const INSURERS = [
@@ -44,30 +39,30 @@ export const REVIEWS = [
 ]
 
 export const STATS = [
-  { value: "+60", label: "Años · 3ra generación" },
-  { value: "4.9★", label: "Calificación Google" },
-  { value: "2", label: "Sucursales en Santa Fe" },
-  { value: "+10", label: "Compañías aseguradoras" },
+  { value: "+60", label: "Años de trayectoria" },
+  { value: "4.9", label: "Calificación en Google" },
+  { value: "2", label: "Sucursales activas" },
+  { value: "+10", label: "Compañías aliadas" },
 ]
 
 export const WHY_US = [
   {
-    icon: "target",
+    icon: "Compass",
     title: "Asesoramiento personalizado",
     desc: "Analizamos tu situación y te recomendamos la cobertura justa, sin excesos ni letra chica.",
   },
   {
-    icon: "zap",
+    icon: "Zap",
     title: "Respuesta rápida",
     desc: "Respondemos consultas y siniestros con agilidad. Tu tiempo es valioso para nosotros.",
   },
   {
-    icon: "handshake",
+    icon: "Handshake",
     title: "Trato humano",
     desc: "Conocemos a nuestros clientes por su nombre, no por un número de póliza.",
   },
   {
-    icon: "map-pin",
+    icon: "MapPin",
     title: "Presencia local",
     desc: "Dos sucursales en Santa Fe. Siempre cerca cuando más nos necesitás.",
   },
