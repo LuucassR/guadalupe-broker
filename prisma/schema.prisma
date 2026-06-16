@@ -1,0 +1,63 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Lead {
+  id        String   @id @default(cuid())
+  name      String
+  phone     String
+  email     String?
+  cobertura String?
+  message   String?
+  source    String   @default("web")
+  bitrixId  String?
+  status    String   @default("new")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Coverage {
+  id          String   @id @default(cuid())
+  slug        String   @unique
+  name        String
+  description String
+  longDesc    String?  @db.Text
+  icon        String
+  imageUrl    String?
+  active      Boolean  @default(true)
+  order       Int      @default(0)
+  createdAt   DateTime @default(now())
+}
+
+model Review {
+  id        String   @id @default(cuid())
+  name      String
+  initials  String
+  text      String
+  rating    Int      @default(5)
+  source    String   @default("google")
+  active    Boolean  @default(true)
+  createdAt DateTime @default(now())
+}
+
+model Insurer {
+  id     String  @id @default(cuid())
+  name   String
+  logoUrl String?
+  active Boolean @default(true)
+  order  Int     @default(0)
+}
+
+model FAQ {
+  id       String   @id @default(cuid())
+  question String
+  answer   String   @db.Text
+  category String?
+  active   Boolean  @default(true)
+  order    Int      @default(0)
+}
