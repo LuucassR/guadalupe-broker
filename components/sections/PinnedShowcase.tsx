@@ -5,6 +5,7 @@ import { useGSAP } from "@gsap/react"
 import gsap from "gsap"
 import { ScrollTrigger } from "gsap/ScrollTrigger"
 import { WHY_US } from "@/constants/site"
+import Image from "next/image"
 
 gsap.registerPlugin(ScrollTrigger)
 
@@ -24,7 +25,7 @@ export default function PinnedShowcase() {
       })
 
       const cards = gsap.utils.toArray<HTMLElement>(".showcase-card")
-      cards.forEach((card, i) => {
+      cards.forEach((card) => {
         gsap.fromTo(
           card,
           { opacity: 0, y: 80, scale: 0.92 },
@@ -53,18 +54,18 @@ export default function PinnedShowcase() {
       ref={sectionRef}
       className="relative min-h-screen bg-brand-dark overflow-hidden"
     >
-      <div className="mx-auto flex max-w-[1200px] flex-col gap-16 px-6 py-32 lg:flex-row lg:py-48">
+      <div className="mx-auto flex max-w-[1200px] flex-col gap-12 px-6 py-20 md:py-24 lg:flex-row lg:py-24">
         <div
           ref={titleRef}
-          className="top-32 flex h-fit w-full flex-col lg:sticky lg:w-[35%]"
+          className="top-24 flex h-fit w-full flex-col lg:sticky lg:w-[35%]"
         >
           <span className="text-[11px] font-bold uppercase tracking-[0.2em] text-brand-rose">
             Por que nosotros
           </span>
-          <h2 className="mt-4 text-[clamp(28px,3.5vw,40px)] font-bold leading-[1.08] tracking-tight text-white">
+          <h2 className="mt-4 text-[clamp(24px,3vw,36px)] font-bold leading-[1.08] tracking-tight text-white">
             Tres generaciones protegiendo a Santa Fe
           </h2>
-          <p className="mt-5 text-sm leading-relaxed text-white/40">
+          <p className="mt-4 text-sm leading-relaxed text-white/40">
             No solo vendemos polizas. Construimos relaciones de confianza que
             atraviesan generaciones en toda la provincia.
           </p>
@@ -72,22 +73,27 @@ export default function PinnedShowcase() {
 
         <div
           ref={galleryRef}
-          className="flex w-full flex-col gap-12 lg:w-[65%]"
+          className="flex w-full flex-col gap-8 lg:w-[65%]"
         >
-          {WHY_US.map((item, i) => (
+          {WHY_US.map((item) => (
             <div
               key={item.title}
-              className="showcase-card flex flex-col gap-6 overflow-hidden rounded-3xl bg-brand-slate/50 ring-1 ring-white/5 md:flex-row"
+              className="showcase-card flex flex-col gap-6 overflow-hidden rounded-xl bg-brand-slate/50 ring-1 ring-white/5 md:flex-row"
             >
-              <div className="relative h-56 w-full shrink-0 overflow-hidden md:h-auto md:w-56">
-                <img
+              <div className="relative h-48 w-full shrink-0 overflow-hidden md:h-auto md:w-48">
+                <Image
                   src={item.image}
                   alt={item.title}
                   className="h-full w-full object-cover opacity-80 grayscale transition-all duration-700"
+                  fill
+                  loading="lazy"
+                  sizes="(max-width: 768px) 100vw, 200px"
                 />
               </div>
               <div className="flex flex-col justify-center px-6 pb-6 md:px-8 md:py-8">
-                <h3 className="text-lg font-bold text-white">{item.title}</h3>
+                <h3 className="text-base font-bold text-white">
+                  {item.title}
+                </h3>
                 <p className="mt-2 text-sm leading-relaxed text-white/50">
                   {item.desc}
                 </p>

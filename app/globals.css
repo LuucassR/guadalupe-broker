@@ -2,19 +2,20 @@
 
 @theme {
   --color-brand-rose: #c84b8c;
-  --color-brand-violet: #5b4dc8;
-  --color-brand-dark: #0f0b1a;
-  --color-brand-slate: #1a1528;
+  --color-brand-dark: #111827;
+  --color-brand-slate: #1e293b;
   --color-bg-page: #fafafa;
   --color-bg-surface: #ffffff;
-  --color-bg-muted: #f4f3f8;
+  --color-bg-muted: #f1f5f9;
   --color-text-primary: #111827;
-  --color-text-secondary: #6b7280;
-  --color-text-muted: #9ca3af;
-  --color-border: #e5e3ee;
+  --color-text-secondary: #64748b;
+  --color-text-muted: #94a3b8;
+  --color-border: #e2e8f0;
   --color-whatsapp: #25d366;
 
   --font-sans: "Outfit", ui-sans-serif, system-ui, sans-serif;
+
+  --animate-loader: loader 1.5s ease-in-out infinite;
 }
 
 html {
@@ -31,12 +32,28 @@ body {
   background-color: #c84b8c33;
 }
 
+@keyframes loader {
+  0% { transform: scaleX(0); transform-origin: left; }
+  50% { transform: scaleX(1); transform-origin: left; }
+  50.01% { transform-origin: right; }
+  100% { transform: scaleX(0); transform-origin: right; }
+}
+
+@keyframes marquee {
+  from { transform: translateX(0); }
+  to { transform: translateX(-60%); }
+}
+
+@keyframes marquee-reverse {
+  from { transform: translateX(-60%); }
+  to { transform: translateX(0); }
+}
+
 @keyframes marquee {
   from { transform: translateX(0); }
   to { transform: translateX(-50%); }
 }
 
-@keyframes marquee-reverse {
-  from { transform: translateX(-50%); }
-  to { transform: translateX(0); }
+.animate-marquee {
+  animation: marquee 30s linear infinite;
 }
