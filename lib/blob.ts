@@ -1,3 +1,3 @@
-import { put, del, list } from "@vercel/blob"
+import { put, del, list } from "@vercel/blob";
 
-export { put, del, list }
+export { put, del, list };

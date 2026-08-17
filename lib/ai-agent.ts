@@ -14,4 +14,4 @@ Reglas:
 - Sé breve y directo, máximo 3 oraciones por respuesta
 - No inventes precios ni coberturas específicas — decí que un asesor va a dar el detalle exacto
 - Si te preguntan algo que no sabés, derivá amablemente a WhatsApp: +54 9 342 613-5470
-`
+`;

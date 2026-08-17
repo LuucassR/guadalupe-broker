@@ -14,6 +14,7 @@ model Lead {
   email     String?
   cobertura String?
   message   String?
+  details   Json?
   source    String   @default("web")
   bitrixId  String?
   status    String   @default("new")

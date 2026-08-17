@@ -1,107 +1,113 @@
-"use client"
+"use client";
 
-import { useRef } from "react"
-import { useGSAP } from "@gsap/react"
-import gsap from "gsap"
-import { ScrollTrigger } from "gsap/ScrollTrigger"
-import { WHY_US } from "@/constants/site"
-import Image from "next/image"
+import { useRef } from "react";
+import gsap from "gsap";
+import { ScrollTrigger } from "gsap/ScrollTrigger";
+import { useGSAP } from "@gsap/react";
+import { TIMELINE } from "@/constants/site";
+import SectionLabel from "@/components/shared/SectionLabel";
+import SectionTitle from "@/components/shared/SectionTitle";
 
-gsap.registerPlugin(ScrollTrigger)
+gsap.registerPlugin(ScrollTrigger);
 
 export default function PinnedShowcase() {
-  const sectionRef = useRef<HTMLElement>(null)
-  const titleRef = useRef<HTMLDivElement>(null)
-  const galleryRef = useRef<HTMLDivElement>(null)
+  const sectionRef = useRef<HTMLDivElement>(null);
+  const trackRef = useRef<HTMLDivElement>(null);
+  const progressRef = useRef<HTMLDivElement>(null);
 
-  useGSAP(() => {
-    const ctx = gsap.context(() => {
-      ScrollTrigger.create({
-        trigger: sectionRef.current,
-        start: "top top",
-        end: "bottom bottom",
-        pin: titleRef.current,
-        pinSpacing: false,
-      })
+  useGSAP(
+    () => {
+      const mm = gsap.matchMedia();
 
-      const cards = gsap.utils.toArray<HTMLElement>(".showcase-card")
-      cards.forEach((card) => {
-        gsap.fromTo(
-          card,
-          { opacity: 0, y: 80, scale: 0.92 },
-          {
-            opacity: 1,
-            y: 0,
-            scale: 1,
-            duration: 0.8,
-            ease: "power3.out",
+      mm.add(
+        "(min-width: 768px) and (prefers-reduced-motion: no-preference)",
+        () => {
+          if (!trackRef.current || !sectionRef.current) return;
+          const track = trackRef.current;
+          const wrapper = sectionRef.current;
+          const distance = track.scrollWidth - wrapper.clientWidth;
+          if (distance <= 0) return;
+
+          const tween = gsap.to(track, {
+            x: -distance,
+            ease: "none",
             scrollTrigger: {
-              trigger: card,
-              start: "top 85%",
-              end: "top 30%",
-              scrub: 1.2,
+              trigger: wrapper,
+              start: "top top",
+              end: () => `+=${distance}`,
+              scrub: 1,
+              pin: true,
+              invalidateOnRefresh: true,
+              onUpdate: (self) => {
+                if (progressRef.current) {
+                  progressRef.current.style.width = `${self.progress * 100}%`;
+                }
+              },
             },
-          }
-        )
-      })
-    }, sectionRef)
+          });
 
-    return () => ctx.revert()
-  })
+          return () => {
+            tween.scrollTrigger?.kill();
+            tween.kill();
+          };
+        },
+      );
+
+      return () => mm.revert();
+    },
+    { scope: sectionRef },
+  );
 
   return (
     <section
       ref={sectionRef}
-      className="relative min-h-screen bg-brand-dark overflow-hidden"
+      className="bg-brand-dark relative overflow-hidden py-20 md:py-24"
     >
-      <div className="mx-auto flex max-w-[1200px] flex-col gap-12 px-6 py-20 md:py-24 lg:flex-row lg:py-24">
-        <div
-          ref={titleRef}
-          className="top-24 flex h-fit w-full flex-col lg:sticky lg:w-[35%]"
-        >
-          <span className="text-[11px] font-bold uppercase tracking-[0.2em] text-brand-rose">
-            Por que nosotros
-          </span>
-          <h2 className="mt-4 text-[clamp(24px,3vw,36px)] font-bold leading-[1.08] tracking-tight text-white">
+      <div className="mx-auto max-w-300 px-6">
+        <div className="mb-12 max-w-2xl">
+          <SectionLabel tone="purple">Por que nosotros</SectionLabel>
+          <SectionTitle tone="light" className="mt-4">
             Tres generaciones protegiendo a Santa Fe
-          </h2>
-          <p className="mt-4 text-sm leading-relaxed text-white/40">
+          </SectionTitle>
+          <p className="mt-3 text-sm leading-relaxed text-gray-300">
             No solo vendemos polizas. Construimos relaciones de confianza que
             atraviesan generaciones en toda la provincia.
           </p>
         </div>
+      </div>
 
+      <div className="mx-6 mb-8 hidden h-px bg-white/10 md:block">
         <div
-          ref={galleryRef}
-          className="flex w-full flex-col gap-8 lg:w-[65%]"
-        >
-          {WHY_US.map((item) => (
-            <div
-              key={item.title}
-              className="showcase-card flex flex-col gap-6 overflow-hidden rounded-xl bg-brand-slate/50 ring-1 ring-white/5 md:flex-row"
-            >
-              <div className="relative h-48 w-full shrink-0 overflow-hidden md:h-auto md:w-48">
-                <Image
-                  src={item.image}
-                  alt={item.title}
-                  className="h-full w-full object-cover opacity-80 grayscale transition-all duration-700"
-                  fill
-                  loading="lazy"
-                  sizes="(max-width: 768px) 100vw, 200px"
-                />
-              </div>
-              <div className="flex flex-col justify-center px-6 pb-6 md:px-8 md:py-8">
-                <h3 className="text-base font-bold text-white">
-                  {item.title}
-                </h3>
-                <p className="mt-2 text-sm leading-relaxed text-white/50">
-                  {item.desc}
-                </p>
-              </div>
-            </div>
-          ))}
-        </div>
+          ref={progressRef}
+          className="bg-brand-purple h-px w-0 transition-[width]"
+        />
+      </div>
+
+      <div
+        ref={trackRef}
+        className="flex flex-col gap-4 px-6 md:w-max md:flex-row md:gap-6"
+        style={{
+          paddingLeft: "max(24px, calc((100vw - 1200px) / 2 + 24px))",
+          paddingRight: "max(24px, calc((100vw - 1200px) / 2 + 24px))",
+        }}
+      >
+        {TIMELINE.map((item) => (
+          <div
+            key={item.year}
+            className="border-white/15 flex shrink-0 flex-col border bg-white/5 p-6 md:w-85"
+          >
+            <span className="text-brand-purple font-heading text-4xl font-bold md:text-5xl">
+              {item.year}
+            </span>
+            <h3 className="mt-4 text-base font-bold text-white">
+              {item.title}
+            </h3>
+            <p className="mt-2 text-sm leading-relaxed text-gray-300">
+              {item.desc}
+            </p>
+          </div>
+        ))}
       </div>
     </section>
-  )
+  );
 }

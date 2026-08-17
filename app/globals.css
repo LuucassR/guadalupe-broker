@@ -1,10 +1,14 @@
 @import "tailwindcss";
 
 @theme {
-  --color-brand-rose: #c84b8c;
-  --color-brand-dark: #111827;
-  --color-brand-slate: #1e293b;
-  --color-bg-page: #fafafa;
+  --color-brand-accent: #0284c7;
+  --color-brand-accent-hover: #0369a1;
+  --color-brand-accent-soft: #e0f2fe;
+  --color-brand-purple: #7c3aed;
+  --color-brand-purple-hover: #6d28d9;
+  --color-brand-purple-soft: #f3ecfe;
+  --color-brand-dark: #0b1f33;
+  --color-bg-page: #f7f8fb;
   --color-bg-surface: #ffffff;
   --color-bg-muted: #f1f5f9;
   --color-text-primary: #111827;
@@ -13,9 +17,17 @@
   --color-border: #e2e8f0;
   --color-whatsapp: #25d366;
 
-  --font-sans: "Outfit", ui-sans-serif, system-ui, sans-serif;
+  --font-sans: var(--font-source-sans), ui-sans-serif, system-ui, sans-serif;
+  --font-heading: var(--font-outfit), ui-sans-serif, system-ui, sans-serif;
 
   --animate-loader: loader 1.5s ease-in-out infinite;
+
+  --radius-sm: 0.125rem;
+  --radius-md: 0.125rem;
+  --radius-lg: 0.1875rem;
+  --radius-xl: 0.25rem;
+  --radius-2xl: 0.25rem;
+  --radius-3xl: 0.25rem;
 }
 
 html {
@@ -29,31 +41,58 @@ body {
 }
 
 ::selection {
-  background-color: #c84b8c33;
+  background-color: #0284c733;
 }
 
 @keyframes loader {
-  0% { transform: scaleX(0); transform-origin: left; }
-  50% { transform: scaleX(1); transform-origin: left; }
-  50.01% { transform-origin: right; }
-  100% { transform: scaleX(0); transform-origin: right; }
+  0% {
+    transform: scaleX(0);
+    transform-origin: left;
+  }
+  50% {
+    transform: scaleX(1);
+    transform-origin: left;
+  }
+  50.01% {
+    transform-origin: right;
+  }
+  100% {
+    transform: scaleX(0);
+    transform-origin: right;
+  }
+}
+
+@keyframes fade-up {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 @keyframes marquee {
-  from { transform: translateX(0); }
-  to { transform: translateX(-60%); }
-}
-
-@keyframes marquee-reverse {
-  from { transform: translateX(-60%); }
-  to { transform: translateX(0); }
-}
-
-@keyframes marquee {
-  from { transform: translateX(0); }
-  to { transform: translateX(-50%); }
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
 }
 
 .animate-marquee {
   animation: marquee 30s linear infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
 }

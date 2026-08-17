@@ -1,103 +1,87 @@
-"use client"
+"use client";
 
-import { useState } from "react"
-import { motion, AnimatePresence } from "framer-motion"
-import { REVIEWS } from "@/constants/site"
-import { ChevronLeft, ChevronRight, Star } from "lucide-react"
+import Link from "next/link";
+import { motion } from "framer-motion";
+import { REVIEWS } from "@/constants/site";
+import { Star, ArrowRight } from "lucide-react";
+import SectionLabel from "@/components/shared/SectionLabel";
+import SectionTitle from "@/components/shared/SectionTitle";
+import GoogleRatingCard from "@/components/shared/GoogleRatingCard";
 
 export default function Testimonials() {
-  const [index, setIndex] = useState(0)
-
-  const prev = () => setIndex((i) => (i === 0 ? REVIEWS.length - 1 : i - 1))
-  const next = () => setIndex((i) => (i === REVIEWS.length - 1 ? 0 : i + 1))
-
   return (
     <section className="py-20 md:py-24">
-      <div className="mx-auto max-w-[1200px] px-6">
+      <div className="mx-auto max-w-300 px-6">
         <motion.div
           initial={{ opacity: 0, y: 30 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.6 }}
-          className="mb-12"
+          className="mb-12 max-w-2xl"
         >
-          <span className="text-[11px] font-bold uppercase tracking-[0.2em] text-brand-rose">
-            Testimonios
-          </span>
-          <h2 className="mt-4 text-[clamp(24px,3vw,36px)] font-bold leading-[1.08] tracking-tight text-brand-dark max-w-2xl">
-            La confianza se construye con los anos
-          </h2>
+          <SectionLabel>Testimonios</SectionLabel>
+          <SectionTitle className="mt-4">
+            La confianza se construye con los años
+          </SectionTitle>
         </motion.div>
 
-        <div className="relative mx-auto max-w-3xl">
-          <AnimatePresence mode="wait">
+        <div className="grid grid-cols-1 gap-5 md:grid-cols-3">
+          <motion.div
+            initial={{ opacity: 0, y: 24 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.5 }}
+          >
+            <GoogleRatingCard />
+          </motion.div>
+
+          {REVIEWS.slice(0, 2).map((review, i) => (
             <motion.div
-              key={index}
-              initial={{ opacity: 0, x: 60 }}
-              animate={{ opacity: 1, x: 0 }}
-              exit={{ opacity: 0, x: -60 }}
-              transition={{ duration: 0.4, ease: [0.25, 0.1, 0.25, 1] }}
-              className="text-center"
+              key={review.name}
+              initial={{ opacity: 0, y: 24 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.5, delay: (i + 1) * 0.08 }}
+              className="flex h-full flex-col border border-gray-100 bg-white p-6"
             >
-              <div className="mb-5 flex justify-center gap-1">
-                {Array.from({ length: REVIEWS[index].rating }).map((_, i) => (
+              <div className="flex gap-1">
+                {Array.from({ length: review.rating }).map((_, s) => (
                   <Star
-                    key={i}
-                    className="h-5 w-5 fill-amber-400 text-amber-400"
+                    key={s}
+                    className="h-4 w-4 fill-amber-400 text-amber-400"
                   />
                 ))}
               </div>
-              <p className="text-lg leading-relaxed text-gray-700 md:text-xl">
-                &ldquo;{REVIEWS[index].text}&rdquo;
+              <p className="mt-4 flex-1 text-sm leading-relaxed text-gray-600">
+                &ldquo;{review.text}&rdquo;
               </p>
-              <div className="mt-6 flex items-center justify-center gap-3">
-                <div className="flex h-10 w-10 items-center justify-center rounded-full bg-brand-rose text-sm font-bold text-white">
-                  {REVIEWS[index].initials}
+              <div className="mt-6 flex items-center gap-3">
+                {/* iniciales como placeholder hasta tener foto/logo real del cliente */}
+                <div className="bg-brand-accent-soft text-brand-accent flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-sm font-bold">
+                  {review.initials}
                 </div>
                 <div className="text-left">
-                  <p className="font-semibold text-brand-dark">
-                    {REVIEWS[index].name}
+                  <p className="text-brand-dark text-sm font-semibold">
+                    {review.name}
                   </p>
-                  <p className="text-sm text-gray-400">
+                  <p className="text-xs text-gray-500">
                     Cliente de Guadalupe Broker
                   </p>
                 </div>
               </div>
             </motion.div>
-          </AnimatePresence>
-
-          <div className="mt-8 flex justify-center gap-4">
-            <button
-              onClick={prev}
-              className="flex h-9 w-9 items-center justify-center rounded-full border border-gray-200 text-gray-600 transition-colors hover:border-brand-rose hover:text-brand-rose"
-              aria-label="Anterior"
-            >
-              <ChevronLeft className="h-4 w-4" />
-            </button>
-            <div className="flex items-center gap-2">
-              {REVIEWS.map((_, i) => (
-                <button
-                  key={i}
-                  onClick={() => setIndex(i)}
-                  className={`h-1.5 rounded-full transition-all ${
-                    i === index
-                      ? "w-5 bg-brand-rose"
-                      : "w-1.5 bg-gray-300"
-                  }`}
-                  aria-label={`Testimonio ${i + 1}`}
-                />
-              ))}
-            </div>
-            <button
-              onClick={next}
-              className="flex h-9 w-9 items-center justify-center rounded-full border border-gray-200 text-gray-600 transition-colors hover:border-brand-rose hover:text-brand-rose"
-              aria-label="Siguiente"
-            >
-              <ChevronRight className="h-4 w-4" />
-            </button>
-          </div>
+          ))}
         </div>
+
+        <Link
+          href="/clientes"
+          prefetch={true}
+          className="text-brand-accent group mt-8 inline-flex items-center gap-2 text-sm font-semibold hover:underline"
+        >
+          Ver todas las opiniones
+          <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
+        </Link>
       </div>
     </section>
-  )
+  );
 }

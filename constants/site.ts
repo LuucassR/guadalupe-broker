@@ -3,6 +3,8 @@ export const COVERAGES = [
     slug: "automotor",
     name: "Automotor",
     icon: "Car",
+    image:
+      "https://images.unsplash.com/photo-1544636331-e26879cd4d9b?w=1920&q=80",
     desc: "Proteccion completa para tu vehiculo con las mejores coberturas del mercado automotor argentino.",
     tags: "Auto · Moto · Camioneta · 4x4",
     group: "personas",
@@ -11,6 +13,8 @@ export const COVERAGES = [
     slug: "hogar",
     name: "Hogar",
     icon: "Home",
+    image:
+      "https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?w=1920&q=80",
     desc: "Tu patrimonio protegido contra incendios, robos y todo imprevisto que pueda surgir.",
     tags: "Casa · Departamento · PH",
     group: "personas",
@@ -19,6 +23,8 @@ export const COVERAGES = [
     slug: "salud",
     name: "Salud",
     icon: "HeartPulse",
+    image:
+      "https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?w=1920&q=80",
     desc: "Accede a la mejor atencion medica sin preocuparte por los costos de tus tratamientos.",
     tags: "Individual · Familiar · Corporativo",
     group: "personas",
@@ -27,6 +33,8 @@ export const COVERAGES = [
     slug: "comercio",
     name: "Comercio",
     icon: "Store",
+    image:
+      "https://images.unsplash.com/photo-1441986300917-64674bd600d8?w=1920&q=80",
     desc: "Protege tu negocio contra robos, incendios y responsabilidad civil hacia terceros.",
     tags: "Local · Oficina · PyME",
     group: "empresas",
@@ -35,6 +43,8 @@ export const COVERAGES = [
     slug: "art",
     name: "ART",
     icon: "Shield",
+    image:
+      "https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?w=1920&q=80",
     desc: "Asegura a tus empleados segun la ley con la cobertura de riesgos del trabajo.",
     tags: "Empleados · Monotributistas",
     group: "empresas",
@@ -43,6 +53,8 @@ export const COVERAGES = [
     slug: "transporte",
     name: "Transporte",
     icon: "Truck",
+    image:
+      "https://images.unsplash.com/photo-1601584115197-04ecc0da31d7?w=1920&q=80",
     desc: "Seguros para flotas y cargas. Tu mercaderia siempre protegida en cada viaje.",
     tags: "Flota · Carga · Equipos",
     group: "empresas",
@@ -51,6 +63,8 @@ export const COVERAGES = [
     slug: "vida-accidentes",
     name: "Vida y Accidentes",
     icon: "Heart",
+    image:
+      "https://images.unsplash.com/photo-1516589178581-6cd7833ae3b2?w=1920&q=80",
     desc: "Los que mas te necesitan merecen tu tranquilidad y proteccion futura.",
     tags: "Vida · Acc. Personales · Sepelio",
     group: "personas",
@@ -59,52 +73,11 @@ export const COVERAGES = [
     slug: "responsabilidad-civil",
     name: "Resp. Civil",
     icon: "Scale",
+    image:
+      "https://images.unsplash.com/photo-1589829545856-d10d557cf95f?w=1920&q=80",
     desc: "Responsabilidad profesional y general para particulares y empresas.",
     tags: "Profesional · General · D&O",
     group: "empresas",
-  },
-];
-
-export const BENTO_ITEMS = [
-  {
-    slug: "automotor",
-    name: "Seguro Automotor",
-    desc: "Cobertura integral para tu vehiculo con las mejores companias del pais.",
-    image:
-      "https://images.unsplash.com/photo-1544636331-e26879cd4d9b?w=800&q=80",
-    span: "lg:col-span-2 lg:row-span-2",
-  },
-  {
-    slug: "hogar",
-    name: "Seguro de Hogar",
-    desc: "Proteccion completa para tu patrimonio familiar.",
-    image:
-      "https://images.unsplash.com/photo-1580587771525-78b9dba3b914?w=400&q=80",
-    span: "lg:col-span-1 lg:row-span-1",
-  },
-  {
-    slug: "salud",
-    name: "Seguro de Salud",
-    desc: "Acceso a la mejor atencion medica privada.",
-    image:
-      "https://images.unsplash.com/photo-1519494026892-80bbd2d6fd0d?w=400&q=80",
-    span: "lg:col-span-1 lg:row-span-1",
-  },
-  {
-    slug: "comercio",
-    name: "Seguros Empresariales",
-    desc: "Soluciones integrales para tu empresa, comercio o industria.",
-    image:
-      "https://images.unsplash.com/photo-1497366216548-37526070297c?w=800&q=80",
-    span: "lg:col-span-2 lg:row-span-1",
-  },
-  {
-    slug: "art",
-    name: "Seguros ART",
-    desc: "Proteccion laboral para tus empleados segun la legislacion vigente.",
-    image:
-      "https://images.unsplash.com/photo-1581092160562-40aa08e78837?w=400&q=80",
-    span: "lg:col-span-1 lg:row-span-1",
   },
 ];
 
@@ -120,7 +93,7 @@ export const INSURERS: Insurer[] = [
   {
     name: "Sancor Seguros",
     shortName: "Sancor",
-    color: "#003057",
+    color: "#00000",
     domain: "sancorseguros.com.ar",
     image:
       "https://www.guadalupebroker.com.ar/assets/images/sancor-seguros.png",
@@ -128,23 +101,21 @@ export const INSURERS: Insurer[] = [
   {
     name: "Rivadavia Seguros",
     shortName: "Rivadavia",
-    color: "#0067be",
+    color: "#00000",
     domain: "segurosrivadavia.com/",
-    image:
-      "https://www.guadalupebroker.com.ar/assets/images/rivadavia.png",
+    image: "https://www.guadalupebroker.com.ar/assets/images/rivadavia.png",
   },
   {
     name: "El Norte Seguros",
     shortName: "Norte",
-    color: "#00b9ee",
+    color: "#00000",
     domain: "elnorte.com.ar",
-    image:
-      "https://www.guadalupebroker.com.ar/assets/images/el-norte.png",
+    image: "https://www.guadalupebroker.com.ar/assets/images/el-norte.png",
   },
   {
     name: "Cooperación Seguros",
     shortName: "Cooperación",
-    color: "#00b9ee",
+    color: "#00000e",
     domain: "cooperacionseguros.com.ar",
     image:
       "https://www.guadalupebroker.com.ar/assets/images/cooperacion-seguros.png",
@@ -152,7 +123,7 @@ export const INSURERS: Insurer[] = [
   {
     name: "Iasper Seguros",
     shortName: "Iasper",
-    color: "#ea1c23",
+    color: "#00000",
     domain: "iapserseguros.seg.ar",
     image: "https://www.guadalupebroker.com.ar/assets/images/iasper.png",
   },
@@ -169,7 +140,7 @@ export const REVIEWS = [
     name: "Carlos R.",
     initials: "CR",
     rating: 5,
-    text: "Llevo anos siendo cliente y siempre me atendieron de maravilla. Cuando tuve un siniestro, me acompanaron en todo el proceso. Confianza total.",
+    text: "Llevo años siendo cliente y siempre me atendieron de maravilla. Cuando tuve un siniestro, me acompanaron en todo el proceso. Confianza total.",
   },
   {
     name: "Laura P.",
@@ -206,6 +177,34 @@ export const WHY_US = [
   },
 ];
 
+export const TIMELINE = [
+  {
+    year: "1960",
+    title: "Fundacion",
+    desc: "Organizacion Guadalupe de Fregona y Sales inicio su actividad aseguradora, vocacion que aun hoy perdura y continua vigente.",
+  },
+  {
+    year: "1985",
+    title: "Segunda generacion",
+    desc: "La siguiente generacion se suma al proyecto, expandiendo la cartera de clientes y las companias con las que trabajamos.",
+  },
+  {
+    year: "2005",
+    title: "Nueva sucursal",
+    desc: "Abrimos nuestra segunda sucursal en 25 de Mayo 2868 para brindar mejor atencion a una clientela en crecimiento.",
+  },
+  {
+    year: "2020",
+    title: "Tercera generacion",
+    desc: "La tercera generacion se incorpora al negocio familiar, digitalizando procesos sin perder la calidez que nos caracteriza.",
+  },
+  {
+    year: "Hoy",
+    title: "Guadalupe Broker S.R.L.",
+    desc: "Iniciamos una nueva etapa acorde a los nuevos sistemas de comercializacion de seguros, innovacion y avances tecnologicos.",
+  },
+];
+
 export const BRANCHES = [
   {
     address: "25 de Mayo 2516 · Santa Fe, Argentina",
@@ -230,7 +229,7 @@ export const BRANCHES = [
 export const FAQS = [
   {
     q: "Que documentacion necesito para contratar un seguro de auto?",
-    a: "Necesitas cedula verde o azul segun corresponda, registro de conducir vigente, DNI y la patente al dia. Si el vehiculo tiene mas de 20 anos, puede requerir una inspeccion previa.",
+    a: "Necesitas cedula verde o azul segun corresponda, registro de conducir vigente, DNI y la patente al dia. Si el vehiculo tiene mas de 20 años, puede requerir una inspeccion previa.",
     category: "personas",
   },
   {
@@ -428,7 +427,7 @@ export const COVERAGE_FAQ_MAP: Record<string, { q: string; a: string }[]> = {
   "vida-accidentes": [
     {
       q: "El seguro de vida cubre suicidio?",
-      a: "Generalmente si, despues de los primeros 2 o 3 anos de vigencia de la poliza. Cada compania tiene sus condiciones.",
+      a: "Generalmente si, despues de los primeros 2 o 3 años de vigencia de la poliza. Cada compania tiene sus condiciones.",
     },
     {
       q: "Que diferencia hay entre vida y accidentes personales?",
@@ -561,7 +560,7 @@ export const SITE_CONFIG = {
   name: "Guadalupe Broker",
   tagline: "Corredora de Seguros",
   description:
-    "Mas de 60 anos y 3 generaciones protegiendo familias y empresas en Santa Fe.",
+    "Mas de 60 años y 3 generaciones protegiendo familias y empresas en Santa Fe.",
   whatsappNumber: process.env.NEXT_PUBLIC_WHATSAPP_NUMBER ?? "5493426135470",
   whatsappMessage:
     process.env.NEXT_PUBLIC_WHATSAPP_MESSAGE ??

@@ -1,92 +1,113 @@
-import type { Metadata } from "next"
-import { notFound } from "next/navigation"
-import Link from "next/link"
-import { COVERAGES, COVERAGE_DETAILS, REQUIRED_DOCS, HOW_TO_HIRE, COVERAGE_FAQ_MAP, SITE_CONFIG } from "@/constants/site"
-import { CheckCircle, ArrowLeft, MessageCircle, ArrowRight, FileText, ClipboardList, HelpCircle } from "lucide-react"
+import type { Metadata } from "next";
+import { notFound } from "next/navigation";
+import Link from "next/link";
 import {
-  Car, Home, HeartPulse, Store, Shield, Truck, Heart, Scale,
-} from "lucide-react"
-import Cotizador from "@/components/shared/Cotizador"
-import FaqAccordion from "@/components/shared/FaqAccordion"
+  COVERAGES,
+  COVERAGE_DETAILS,
+  REQUIRED_DOCS,
+  HOW_TO_HIRE,
+  COVERAGE_FAQ_MAP,
+  SITE_CONFIG,
+} from "@/constants/site";
+import {
+  CheckCircle,
+  ArrowLeft,
+  MessageCircle,
+  ArrowRight,
+  FileText,
+  ClipboardList,
+  HelpCircle,
+} from "lucide-react";
+import {
+  Car,
+  Home,
+  HeartPulse,
+  Store,
+  Shield,
+  Truck,
+  Heart,
+  Scale,
+} from "lucide-react";
+import Cotizador from "@/components/shared/Cotizador";
+import AdvisorCta from "@/components/shared/AdvisorCta";
+import FaqAccordion from "@/components/shared/FaqAccordion";
+import PageHero from "@/components/shared/PageHero";
+import SectionLabel from "@/components/shared/SectionLabel";
+import SectionTitle from "@/components/shared/SectionTitle";
 
 interface Props {
-  params: Promise<{ slug: string }>
+  params: Promise<{ slug: string }>;
 }
 
 const ICON_MAP: Record<string, typeof Car> = {
-  Car, Home, HeartPulse, Store, Shield, Truck, Heart, Scale,
-}
+  Car,
+  Home,
+  HeartPulse,
+  Store,
+  Shield,
+  Truck,
+  Heart,
+  Scale,
+};
 
 export async function generateStaticParams() {
-  return COVERAGES.map((c) => ({ slug: c.slug }))
+  return COVERAGES.map((c) => ({ slug: c.slug }));
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
-  const { slug } = await params
-  const coverage = COVERAGES.find((c) => c.slug === slug)
-  if (!coverage) return {}
-  return { title: `${coverage.name} | Guadalupe Broker` }
+  const { slug } = await params;
+  const coverage = COVERAGES.find((c) => c.slug === slug);
+  if (!coverage) return {};
+  return { title: `${coverage.name} | Guadalupe Broker` };
 }
 
 export default async function CoverageDetailPage({ params }: Props) {
-  const { slug } = await params
-  const coverage = COVERAGES.find((c) => c.slug === slug)
-  if (!coverage) notFound()
+  const { slug } = await params;
+  const coverage = COVERAGES.find((c) => c.slug === slug);
+  if (!coverage) notFound();
 
-  const detail = COVERAGE_DETAILS[slug]
-  const docs = REQUIRED_DOCS[slug]
-  const faqs = COVERAGE_FAQ_MAP[slug]
-  const Icon = ICON_MAP[coverage.icon || "Shield"]
+  const detail = COVERAGE_DETAILS[slug];
+  const docs = REQUIRED_DOCS[slug];
+  const faqs = COVERAGE_FAQ_MAP[slug];
+  const Icon = ICON_MAP[coverage.icon || "Shield"];
 
   return (
     <>
-      <section className="bg-brand-dark pt-32 pb-16 md:pt-36 md:pb-20">
-        <div className="mx-auto max-w-[1140px] px-6">
+      <PageHero
+        eyebrow="Cobertura"
+        title={coverage.name}
+        description={detail?.desc}
+        image={coverage.image}
+        icon={<Icon className="text-brand-purple h-6 w-6" />}
+        backLink={
           <Link
             href="/coberturas"
             prefetch={true}
-            className="mb-6 inline-flex items-center gap-2 text-sm font-medium text-gray-400 transition-colors hover:text-white"
+            className="mb-6 inline-flex items-center gap-2 text-sm font-medium text-gray-300 transition-colors hover:text-white"
           >
             <ArrowLeft className="h-4 w-4" />
             Todas las coberturas
           </Link>
-          <div className="flex items-center gap-4">
-            <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-brand-rose/20">
-              <Icon className="h-6 w-6 text-brand-rose" />
-            </div>
-            <div>
-              <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-brand-rose">
-                Cobertura
-              </span>
-              <h1 className="mt-1 text-[clamp(28px,4vw,42px)] font-bold leading-[1.05] tracking-tight text-white">
-                {coverage.name}
-              </h1>
-            </div>
-          </div>
-          {detail && (
-            <p className="mt-6 max-w-2xl text-sm leading-relaxed text-gray-400">
-              {detail.desc}
-            </p>
-          )}
-          <a
-            href={SITE_CONFIG.whatsappUrl}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="mt-6 inline-flex items-center gap-2.5 rounded-xl bg-brand-rose px-6 py-3 text-sm font-semibold text-white transition-all hover:brightness-110"
-          >
-            <MessageCircle className="h-4 w-4" />
-            Cotizar {coverage.name.toLowerCase()}
-            <ArrowRight className="h-4 w-4" />
-          </a>
-        </div>
-      </section>
+        }
+      >
+        <a
+          href={SITE_CONFIG.whatsappUrl}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="bg-brand-purple hover:bg-brand-purple-hover mt-6 inline-flex animate-[fade-up_0.6s_ease-out_both] items-center gap-2.5 px-6 py-3 text-sm font-semibold text-white transition-colors [animation-delay:240ms]"
+        >
+          <MessageCircle className="h-4 w-4" />
+          Cotizar {coverage.name.toLowerCase()}
+          <ArrowRight className="h-4 w-4" />
+        </a>
+      </PageHero>
 
       {detail && (
         <section className="py-16 md:py-20">
           <div className="mx-auto max-w-[1140px] px-6">
-            <div className="flex items-center gap-3 mb-8">
-              <CheckCircle className="h-5 w-5 text-brand-rose" />
-              <h2 className="text-lg font-bold text-brand-dark">
+            <div className="mb-8 flex items-center gap-3">
+              <CheckCircle className="text-brand-accent h-5 w-5" />
+              <h2 className="text-brand-dark text-lg font-bold">
                 Beneficios incluidos
               </h2>
             </div>
@@ -94,9 +115,9 @@ export default async function CoverageDetailPage({ params }: Props) {
               {detail.benefits.map((b, i) => (
                 <div
                   key={i}
-                  className="flex items-start gap-3 rounded-xl bg-white p-4 ring-1 ring-gray-100"
+                  className="flex items-start gap-3 border border-gray-100 bg-white p-4"
                 >
-                  <CheckCircle className="mt-0.5 h-4 w-4 shrink-0 text-brand-rose" />
+                  <CheckCircle className="text-brand-accent mt-0.5 h-4 w-4 shrink-0" />
                   <p className="text-sm leading-relaxed text-gray-600">{b}</p>
                 </div>
               ))}
@@ -107,9 +128,9 @@ export default async function CoverageDetailPage({ params }: Props) {
 
       <section className="bg-bg-muted py-16 md:py-20">
         <div className="mx-auto max-w-[1140px] px-6">
-          <div className="flex items-center gap-3 mb-8">
-            <ClipboardList className="h-5 w-5 text-brand-rose" />
-            <h2 className="text-lg font-bold text-brand-dark">
+          <div className="mb-8 flex items-center gap-3">
+            <ClipboardList className="text-brand-accent h-5 w-5" />
+            <h2 className="text-brand-dark text-lg font-bold">
               Como contratar
             </h2>
           </div>
@@ -117,15 +138,15 @@ export default async function CoverageDetailPage({ params }: Props) {
             {HOW_TO_HIRE.map((step) => (
               <div
                 key={step.step}
-                className="rounded-xl bg-white p-6 ring-1 ring-gray-100"
+                className="border border-gray-100 bg-white p-6"
               >
-                <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-brand-rose/10 text-xs font-bold text-brand-rose">
+                <span className="bg-brand-accent-soft text-brand-accent flex h-7 w-7 items-center justify-center text-xs font-bold">
                   {step.step}
                 </span>
-                <h3 className="mt-4 text-sm font-bold text-brand-dark">
+                <h3 className="text-brand-dark mt-4 text-sm font-bold">
                   {step.title}
                 </h3>
-                <p className="mt-2 text-sm leading-relaxed text-gray-500">
+                <p className="mt-2 text-sm leading-relaxed text-gray-600">
                   {step.desc}
                 </p>
               </div>
@@ -137,9 +158,9 @@ export default async function CoverageDetailPage({ params }: Props) {
       {docs && (
         <section className="py-16 md:py-20">
           <div className="mx-auto max-w-[1140px] px-6">
-            <div className="flex items-center gap-3 mb-8">
-              <FileText className="h-5 w-5 text-brand-rose" />
-              <h2 className="text-lg font-bold text-brand-dark">
+            <div className="mb-8 flex items-center gap-3">
+              <FileText className="text-brand-accent h-5 w-5" />
+              <h2 className="text-brand-dark text-lg font-bold">
                 Documentacion necesaria
               </h2>
             </div>
@@ -147,7 +168,7 @@ export default async function CoverageDetailPage({ params }: Props) {
               {docs.map((doc, i) => (
                 <div
                   key={i}
-                  className="flex items-center gap-3 rounded-xl bg-white p-4 ring-1 ring-gray-100"
+                  className="flex items-center gap-3 border border-gray-100 bg-white p-4"
                 >
                   <FileText className="h-4 w-4 shrink-0 text-gray-400" />
                   <p className="text-sm text-gray-600">{doc}</p>
@@ -160,9 +181,9 @@ export default async function CoverageDetailPage({ params }: Props) {
 
       <section className="bg-bg-muted py-16 md:py-20">
         <div className="mx-auto max-w-[800px] px-6">
-          <div className="flex items-center gap-3 mb-8">
-            <HelpCircle className="h-5 w-5 text-brand-rose" />
-            <h2 className="text-lg font-bold text-brand-dark">
+          <div className="mb-8 flex items-center gap-3">
+            <HelpCircle className="text-brand-accent h-5 w-5" />
+            <h2 className="text-brand-dark text-lg font-bold">
               Preguntas frecuentes
             </h2>
           </div>
@@ -178,17 +199,29 @@ export default async function CoverageDetailPage({ params }: Props) {
 
       <section className="py-16 md:py-20">
         <div className="mx-auto max-w-[600px] px-6">
-          <span className="text-[11px] font-bold uppercase tracking-[0.2em] text-brand-rose">
-            Cotizador
-          </span>
-          <h2 className="mt-4 text-[clamp(22px,3vw,28px)] font-bold leading-[1.08] tracking-tight text-brand-dark">
-            Cotiza {coverage.name.toLowerCase()} en 3 pasos
-          </h2>
-          <div className="mt-8">
-            <Cotizador />
-          </div>
+          {slug === "automotor" ? (
+            <>
+              <SectionLabel>Cotizador</SectionLabel>
+              <SectionTitle size="md" className="mt-4">
+                Cotiza {coverage.name.toLowerCase()} en simples pasos
+              </SectionTitle>
+              <div className="mt-8">
+                <Cotizador />
+              </div>
+            </>
+          ) : (
+            <>
+              <SectionLabel>Cotizador</SectionLabel>
+              <SectionTitle size="md" className="mt-4">
+                Cotiza {coverage.name.toLowerCase()}
+              </SectionTitle>
+              <div className="mt-8">
+                <AdvisorCta coverageName={coverage.name} />
+              </div>
+            </>
+          )}
         </div>
       </section>
     </>
-  )
+  );
 }

@@ -25,11 +25,14 @@ function InsurerCard({
       href={`https://${domain}`}
       target="_blank"
       rel="noopener noreferrer"
-      className="group flex w-[170px] shrink-0 flex-col items-center gap-3 rounded-2xl border border-gray-100 bg-white px-6 shadow-sm transition-all hover:shadow-lg hover:shadow-gray-200/50 hover:-translate-y-0.5"
+      className="group flex w-42.5 shrink-0 flex-col items-center gap-3 border border-gray-100 bg-white px-6 shadow-sm grayscale-100 transition-all hover:-translate-y-0.5 hover:shadow-lg hover:shadow-gray-200/50"
     >
-      <div className="flex h-32 w-full items-center justify-center rounded-xl transition-colors">
+      <div className="flex h-32 w-full items-center justify-center transition-colors">
         {imgError ? (
-          <span className="text-lg font-bold tracking-tight" style={{ color }}>
+          <span
+            className="text-lg font-bold tracking-tight grayscale-0"
+            style={{ color }}
+          >
             {shortName}
           </span>
         ) : (
@@ -50,7 +53,7 @@ function InsurerCard({
 export default function InsurerBadges() {
   return (
     <div className="relative flex w-full overflow-hidden mask-[linear-gradient(to_right,transparent,black_10%,black_90%,transparent)]">
-      <div className="flex w-max animate-marquee gap-5 hover:[animation-play-state:paused] motion-reduce:animate-none">
+      <div className="animate-marquee flex w-max gap-5 hover:[animation-play-state:paused] motion-reduce:animate-none">
         {[...INSURERS, ...INSURERS].map((insurer, index) => (
           <InsurerCard key={`${insurer.name}-${index}`} {...insurer} />
         ))}
