@@ -1,1 +1,26 @@
-{"0": "Public Site Pages & Content", "1": "Runtime Dependencies", "2": "README & Resume Docs", "3": "Dev Tooling Dependencies", "4": "TypeScript Compiler Config", "5": "Coverage & About Pages", "6": "Site Layout Shell", "7": "TypeScript Project References", "8": "Package Manifest", "9": "PNPM Workspace Config", "10": "Shared TypeScript Types", "11": "Root App Layout", "12": "Globe Icon Asset", "13": "Bitrix24 CRM Integration", "14": "Loading Page", "15": "Section Label Component", "16": "Section Title Component", "17": "Hero Family Image", "18": "Next.js Logo Asset", "19": "Vercel Logo Asset", "20": "ESLint Config", "21": "AI Agent System Prompt", "22": "Next.js Config", "23": "PostCSS Config", "24": "Window Icon Asset", "25": "Vercel Blob Storage Lib", "26": "Prisma Client Lib", "27": "File Icon Asset"}
+{
+  "0": "site.ts",
+  "1": "dependencies",
+  "2": "Lucas David Rossi",
+  "3": "devDependencies",
+  "4": "compilerOptions",
+  "5": "(public)/page.tsx",
+  "6": "pricing.ts",
+  "7": "CLAUDE.md",
+  "9": "pnpm ignoredBuiltDependencies config",
+  "11": "app/layout.tsx",
+  "12": "globe.svg",
+  "13": "bitrix24.ts",
+  "14": "Preloader.tsx",
+  "17": "Family Protection / Insurance Emotional Appeal Concept",
+  "18": "Next.js",
+  "19": "Vercel",
+  "20": "eslint.config.mjs",
+  "21": "ai-agent.ts",
+  "22": "next.config.ts",
+  "23": "postcss.config.mjs",
+  "24": "window.svg (browser window icon)",
+  "25": "blob.ts",
+  "26": "leads/route.ts",
+  "27": "file.svg (generic file/document icon)"
+}

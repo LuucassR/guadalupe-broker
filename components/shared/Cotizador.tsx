@@ -1,16 +1,21 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { SITE_CONFIG } from "@/constants/site";
-import { Check, Send, ArrowLeft, Car, Bike } from "lucide-react";
-import { CAR_BRANDS, MOTO_BRANDS } from "@/constants/vehicles";
+import { Check, Send, ArrowLeft, Car, Bike, AlertCircle } from "lucide-react";
+import { MOTO_BRANDS } from "@/constants/vehicles";
 import {
   calculateAutoMotoQuote,
   formatPriceARS,
   type CoverageTier,
   type FranquiciaPct,
 } from "@/lib/pricing";
+import type {
+  VehicleBrandOption,
+  VehicleModelOption,
+  VehicleVersionOption,
+} from "@/lib/vehicle-valuation";
 import PriceComparison from "./PriceComparison";
 
 const CURRENT_YEAR = new Date().getFullYear();
@@ -23,12 +28,34 @@ const TOTAL_STEPS = 5;
 const inputClass =
   "focus:border-brand-accent/50 focus:ring-brand-accent/10 w-full border border-gray-200 px-4 py-3 text-sm text-gray-900 transition-colors outline-none placeholder:text-gray-500 focus:ring-2";
 
+async function fetchVehicleLookup<T>(params: Record<string, string>): Promise<T> {
+  const res = await fetch(`/api/vehicle-lookup?${new URLSearchParams(params)}`);
+  const json = await res.json();
+  if (!res.ok) throw new Error(json.error || "Error consultando el vehiculo");
+  return json.data as T;
+}
+
 export default function Cotizador() {
   const [step, setStep] = useState(0);
   const [vehicleType, setVehicleType] = useState<"Auto" | "Moto" | "">("");
-  const [brand, setBrand] = useState("");
-  const [model, setModel] = useState("");
-  const [year, setYear] = useState("");
+
+  // Moto: seleccion por lista estatica (no hay API de valuacion de motos en AR).
+  const [motoBrand, setMotoBrand] = useState("");
+  const [motoModel, setMotoModel] = useState("");
+  const [motoYear, setMotoYear] = useState("");
+
+  // Auto: seleccion contra Arg Autos API, con valor de mercado real.
+  const [autoBrands, setAutoBrands] = useState<VehicleBrandOption[]>([]);
+  const [autoModels, setAutoModels] = useState<VehicleModelOption[]>([]);
+  const [autoVersions, setAutoVersions] = useState<VehicleVersionOption[]>([]);
+  const [autoBrandId, setAutoBrandId] = useState<number | "">("");
+  const [autoModelId, setAutoModelId] = useState<number | "">("");
+  const [autoVersionId, setAutoVersionId] = useState<number | "">("");
+  const [autoYear, setAutoYear] = useState("");
+  const [vehicleValueARS, setVehicleValueARS] = useState<number | null>(null);
+  const [lookupError, setLookupError] = useState("");
+  const loadingValue = Boolean(autoVersionId) && vehicleValueARS === null && !lookupError;
+
   const [hasGnc, setHasGnc] = useState(false);
   const [postalCode, setPostalCode] = useState("");
   const [name, setName] = useState("");
@@ -38,22 +65,120 @@ export default function Cotizador() {
   const [selectedTier, setSelectedTier] = useState<CoverageTier | "">("");
   const [submitting, setSubmitting] = useState(false);
 
-  const brands = vehicleType === "Moto" ? MOTO_BRANDS : CAR_BRANDS;
-  const selectedBrandModels = brands.find((b) => b.name === brand)?.models ?? [];
+  const selectedMotoBrandModels =
+    MOTO_BRANDS.find((b) => b.name === motoBrand)?.models ?? [];
+  const selectedAutoBrandName = autoBrands.find((b) => b.id === autoBrandId)?.name ?? "";
+  const selectedAutoModelName = autoModels.find((m) => m.id === autoModelId)?.name ?? "";
+
+  const brand = vehicleType === "Auto" ? selectedAutoBrandName : motoBrand;
+  const model = vehicleType === "Auto" ? selectedAutoModelName : motoModel;
+  const year = vehicleType === "Auto" ? autoYear : motoYear;
+
+  // Carga las marcas de auto una sola vez al elegir "Auto".
+  useEffect(() => {
+    if (vehicleType !== "Auto" || autoBrands.length > 0) return;
+    let active = true;
+    fetchVehicleLookup<VehicleBrandOption[]>({ action: "brands" })
+      .then((data) => {
+        if (!active) return;
+        setAutoBrands(data);
+        setLookupError("");
+      })
+      .catch((err) => active && setLookupError(err.message));
+    return () => {
+      active = false;
+    };
+  }, [vehicleType, autoBrands.length]);
+
+  // Carga modelos al elegir marca y año de auto (solo modelos con ese año-modelo).
+  useEffect(() => {
+    if (!autoBrandId || !autoYear) return;
+    let active = true;
+    fetchVehicleLookup<VehicleModelOption[]>({
+      action: "models",
+      brandId: String(autoBrandId),
+      year: autoYear,
+    })
+      .then((data) => {
+        if (!active) return;
+        setAutoModels(data);
+        setLookupError("");
+      })
+      .catch((err) => active && setLookupError(err.message));
+    return () => {
+      active = false;
+    };
+  }, [autoBrandId, autoYear]);
+
+  // Carga versiones al elegir modelo de auto, filtradas por el año elegido.
+  useEffect(() => {
+    if (!autoModelId || !autoYear) return;
+    let active = true;
+    fetchVehicleLookup<VehicleVersionOption[]>({
+      action: "versions",
+      modelId: String(autoModelId),
+      year: autoYear,
+    })
+      .then((data) => {
+        if (!active) return;
+        setAutoVersions(data);
+        setLookupError("");
+      })
+      .catch((err) => active && setLookupError(err.message));
+    return () => {
+      active = false;
+    };
+  }, [autoModelId, autoYear]);
+
+  // Consulta el valor de mercado real al elegir version de auto, para el año elegido.
+  useEffect(() => {
+    if (!autoVersionId || !autoYear) return;
+    let active = true;
+    fetchVehicleLookup<number>({
+      action: "value",
+      versionId: String(autoVersionId),
+      year: autoYear,
+    })
+      .then((data) => {
+        if (!active) return;
+        setVehicleValueARS(data);
+        setLookupError("");
+      })
+      .catch((err) => active && setLookupError(err.message));
+    return () => {
+      active = false;
+    };
+  }, [autoVersionId, autoYear]);
 
   const quote = useMemo(() => {
     if (!vehicleType || !brand || !model || !year || !postalCode) return null;
+    if (vehicleType === "Auto" && !vehicleValueARS) return null;
     return calculateAutoMotoQuote(
-      { vehicleType, brand, model, year, hasGnc, postalCode },
+      {
+        vehicleType,
+        brand,
+        model,
+        year,
+        hasGnc,
+        postalCode,
+        vehicleValueARS: vehicleValueARS ?? undefined,
+      },
       franquiciaPct,
     );
-  }, [vehicleType, brand, model, year, hasGnc, postalCode, franquiciaPct]);
+  }, [vehicleType, brand, model, year, hasGnc, postalCode, vehicleValueARS, franquiciaPct]);
 
   const selectedTierPrice = quote?.tiers.find((t) => t.tier === selectedTier);
 
+  const step1Complete =
+    vehicleType === "Auto"
+      ? Boolean(
+          autoBrandId && autoModelId && autoVersionId && autoYear && vehicleValueARS && postalCode,
+        )
+      : Boolean(motoBrand && motoModel && motoYear && postalCode);
+
   const handleNext = () => {
     if (step === 0 && vehicleType) setStep(1);
-    else if (step === 1 && brand && model && year && postalCode) setStep(2);
+    else if (step === 1 && step1Complete) setStep(2);
     else if (step === 2 && selectedTier) setStep(3);
     else if (step === 3 && name && phone) setStep(4);
   };
@@ -115,9 +240,17 @@ export default function Cotizador() {
   const reset = () => {
     setStep(0);
     setVehicleType("");
-    setBrand("");
-    setModel("");
-    setYear("");
+    setMotoBrand("");
+    setMotoModel("");
+    setMotoYear("");
+    setAutoBrandId("");
+    setAutoModelId("");
+    setAutoVersionId("");
+    setAutoYear("");
+    setAutoModels([]);
+    setAutoVersions([]);
+    setVehicleValueARS(null);
+    setLookupError("");
     setHasGnc(false);
     setPostalCode("");
     setName("");
@@ -195,81 +328,254 @@ export default function Cotizador() {
             Datos del vehiculo
           </h3>
           <p className="mt-1 text-sm text-gray-600">
-            Contanos las caracteristicas de tu {vehicleType.toLowerCase()}{" "}
-            para una cotizacion precisa.
+            {vehicleType === "Auto"
+              ? "Buscamos el valor de mercado real de tu auto para una cotizacion mas precisa."
+              : "Contanos las caracteristicas de tu moto para una cotizacion precisa."}
           </p>
-          <div className="mt-5 space-y-4">
-            <div>
-              <label className="mb-1.5 block text-xs font-semibold text-gray-600">
-                Marca
-              </label>
-              <select
-                value={brand}
-                onChange={(e) => {
-                  setBrand(e.target.value);
-                  setModel("");
-                }}
-                className={inputClass}
-              >
-                <option value="">Selecciona una marca</option>
-                {brands.map((b) => (
-                  <option key={b.name} value={b.name}>
-                    {b.name}
-                  </option>
-                ))}
-              </select>
+
+          {lookupError && (
+            <div className="mt-4 flex items-start gap-2 border border-red-200 bg-red-50 px-3 py-2 text-xs text-red-700">
+              <AlertCircle className="mt-0.5 h-3.5 w-3.5 shrink-0" />
+              {lookupError}
             </div>
+          )}
+
+          <div className="mt-5 space-y-4">
+            {vehicleType === "Auto" ? (
+              <>
+                <div>
+                  <label className="mb-1.5 block text-xs font-semibold text-gray-600">
+                    Marca
+                  </label>
+                  <select
+                    value={autoBrandId}
+                    onChange={(e) => {
+                      setAutoBrandId(e.target.value ? Number(e.target.value) : "");
+                      setAutoYear("");
+                      setAutoModelId("");
+                      setAutoVersionId("");
+                      setAutoModels([]);
+                      setAutoVersions([]);
+                      setVehicleValueARS(null);
+                      setLookupError("");
+                    }}
+                    className={inputClass}
+                    disabled={autoBrands.length === 0}
+                  >
+                    <option value="">
+                      {autoBrands.length === 0 ? "Cargando marcas..." : "Selecciona una marca"}
+                    </option>
+                    {autoBrands.map((b) => (
+                      <option key={b.id} value={b.id}>
+                        {b.name}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                <AnimatePresence>
+                  {autoBrandId && (
+                    <motion.div
+                      key="anio"
+                      initial={{ opacity: 0, y: -8 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, y: -8 }}
+                      transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
+                    >
+                      <label className="mb-1.5 block text-xs font-semibold text-gray-600">
+                        Año
+                      </label>
+                      <select
+                        value={autoYear}
+                        onChange={(e) => {
+                          setAutoYear(e.target.value);
+                          setAutoModelId("");
+                          setAutoVersionId("");
+                          setAutoModels([]);
+                          setAutoVersions([]);
+                          setVehicleValueARS(null);
+                          setLookupError("");
+                        }}
+                        className={inputClass}
+                      >
+                        <option value="">Selecciona</option>
+                        {YEARS.map((y) => (
+                          <option key={y} value={y}>
+                            {y}
+                          </option>
+                        ))}
+                      </select>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+
+                <AnimatePresence>
+                  {autoYear && (
+                    <motion.div
+                      key="modelo"
+                      initial={{ opacity: 0, y: -8 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, y: -8 }}
+                      transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
+                    >
+                      <label className="mb-1.5 block text-xs font-semibold text-gray-600">
+                        Modelo
+                      </label>
+                      <select
+                        value={autoModelId}
+                        onChange={(e) => {
+                          setAutoModelId(e.target.value ? Number(e.target.value) : "");
+                          setAutoVersionId("");
+                          setAutoVersions([]);
+                          setVehicleValueARS(null);
+                          setLookupError("");
+                        }}
+                        className={inputClass}
+                        disabled={autoModels.length === 0}
+                      >
+                        <option value="">
+                          {autoModels.length === 0 ? "Cargando modelos..." : "Selecciona"}
+                        </option>
+                        {autoModels.map((m) => (
+                          <option key={m.id} value={m.id}>
+                            {m.name}
+                          </option>
+                        ))}
+                      </select>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+
+                <AnimatePresence>
+                  {autoModelId && (
+                    <motion.div
+                      key="version"
+                      initial={{ opacity: 0, y: -8 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, y: -8 }}
+                      transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
+                    >
+                      <label className="mb-1.5 block text-xs font-semibold text-gray-600">
+                        Versión
+                      </label>
+                      <select
+                        value={autoVersionId}
+                        onChange={(e) => {
+                          setAutoVersionId(e.target.value ? Number(e.target.value) : "");
+                          setVehicleValueARS(null);
+                          setLookupError("");
+                        }}
+                        className={inputClass}
+                        disabled={autoVersions.length === 0}
+                      >
+                        <option value="">
+                          {autoVersions.length === 0 ? "Cargando versiones..." : "Selecciona"}
+                        </option>
+                        {autoVersions.map((v) => (
+                          <option key={v.id} value={v.id}>
+                            {v.name}
+                          </option>
+                        ))}
+                      </select>
+                      <p className="mt-1.5 text-xs text-gray-500">
+                        El año que aparece en el nombre de cada versión es el de su
+                        lanzamiento, no siempre coincide con el año que elegiste: es
+                        normal si tu modelo no tuvo una versión nueva ese año.
+                      </p>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+
+                <AnimatePresence>
+                  {autoVersionId && loadingValue && (
+                    <motion.div
+                      key="valor"
+                      initial={{ opacity: 0, y: -8 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, y: -8 }}
+                      transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
+                      className="flex items-center justify-center border border-gray-200 bg-gray-50 px-4 py-3"
+                    >
+                      <span className="border-brand-accent/60 h-5 w-5 animate-spin rounded-full border-2 border-t-transparent" />
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </>
+            ) : (
+              <>
+                <div>
+                  <label className="mb-1.5 block text-xs font-semibold text-gray-600">
+                    Marca
+                  </label>
+                  <select
+                    value={motoBrand}
+                    onChange={(e) => {
+                      setMotoBrand(e.target.value);
+                      setMotoModel("");
+                    }}
+                    className={inputClass}
+                  >
+                    <option value="">Selecciona una marca</option>
+                    {MOTO_BRANDS.map((b) => (
+                      <option key={b.name} value={b.name}>
+                        {b.name}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                <AnimatePresence>
+                  {motoBrand && (
+                    <motion.div
+                      key="modelo-anio"
+                      initial={{ opacity: 0, y: -8 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, y: -8 }}
+                      transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
+                      className="grid grid-cols-2 gap-4"
+                    >
+                      <div>
+                        <label className="mb-1.5 block text-xs font-semibold text-gray-600">
+                          Modelo
+                        </label>
+                        <select
+                          value={motoModel}
+                          onChange={(e) => setMotoModel(e.target.value)}
+                          className={inputClass}
+                        >
+                          <option value="">Selecciona</option>
+                          {selectedMotoBrandModels.map((m) => (
+                            <option key={m} value={m}>
+                              {m}
+                            </option>
+                          ))}
+                        </select>
+                      </div>
+                      <div>
+                        <label className="mb-1.5 block text-xs font-semibold text-gray-600">
+                          Año
+                        </label>
+                        <select
+                          value={motoYear}
+                          onChange={(e) => setMotoYear(e.target.value)}
+                          className={inputClass}
+                        >
+                          <option value="">Selecciona</option>
+                          {YEARS.map((y) => (
+                            <option key={y} value={y}>
+                              {y}
+                            </option>
+                          ))}
+                        </select>
+                      </div>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </>
+            )}
 
             <AnimatePresence>
-              {brand && (
-                <motion.div
-                  key="modelo-anio"
-                  initial={{ opacity: 0, y: -8 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: -8 }}
-                  transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
-                  className="grid grid-cols-2 gap-4"
-                >
-                  <div>
-                    <label className="mb-1.5 block text-xs font-semibold text-gray-600">
-                      Modelo
-                    </label>
-                    <select
-                      value={model}
-                      onChange={(e) => setModel(e.target.value)}
-                      className={inputClass}
-                    >
-                      <option value="">Selecciona</option>
-                      {selectedBrandModels.map((m) => (
-                        <option key={m} value={m}>
-                          {m}
-                        </option>
-                      ))}
-                    </select>
-                  </div>
-                  <div>
-                    <label className="mb-1.5 block text-xs font-semibold text-gray-600">
-                      Año
-                    </label>
-                    <select
-                      value={year}
-                      onChange={(e) => setYear(e.target.value)}
-                      className={inputClass}
-                    >
-                      <option value="">Selecciona</option>
-                      {YEARS.map((y) => (
-                        <option key={y} value={y}>
-                          {y}
-                        </option>
-                      ))}
-                    </select>
-                  </div>
-                </motion.div>
-              )}
-            </AnimatePresence>
-
-            <AnimatePresence>
-              {model && year && (
+              {model && (vehicleType === "Auto" ? autoVersionId && autoYear : motoYear) && (
                 <motion.div
                   key="cp-gnc"
                   initial={{ opacity: 0, y: -8 }}
@@ -309,7 +615,7 @@ export default function Cotizador() {
           </div>
           <button
             onClick={handleNext}
-            disabled={!brand || !model || !year || !postalCode}
+            disabled={!step1Complete}
             className="bg-brand-accent hover:bg-brand-accent-hover mt-6 inline-flex w-full items-center justify-center gap-2 px-6 py-3 text-sm font-semibold text-white transition-colors disabled:opacity-40"
           >
             Siguiente

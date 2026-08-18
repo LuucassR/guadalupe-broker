@@ -1,4 +1,4 @@
-import { CAR_BRANDS, MOTO_BRANDS, type VehicleType, type BrandTier } from "@/constants/vehicles";
+import { MOTO_BRANDS, type VehicleType, type BrandTier } from "@/constants/vehicles";
 
 export const COVERAGE_TIERS = ["rc", "terceros-completo", "todo-riesgo"] as const;
 export type CoverageTier = (typeof COVERAGE_TIERS)[number];
@@ -13,6 +13,8 @@ export interface VehicleQuoteInput {
   year: string;
   hasGnc: boolean;
   postalCode: string;
+  // Valor de mercado real en ARS (Arg Autos API). Requerido para Auto.
+  vehicleValueARS?: number;
 }
 
 export interface TierPrice {
@@ -24,20 +26,24 @@ export interface TierPrice {
 
 export interface QuoteResult {
   tiers: TierPrice[];
-  brandTier: BrandTier;
-  vehicleAgeYears: number;
+  vehicleValueARS?: number;
 }
 
-// --- Tabla de tarifas placeholder ---------------------------------------
-// Valores ilustrativos de punto de partida, NO son tarifas reales de
-// ninguna aseguradora. Ajustar estas constantes a medida que haya datos
-// de mercado reales. Todo precio mostrado al usuario se presenta siempre
-// como estimado (ver PriceComparison.tsx).
+// --- Estimacion de prima ------------------------------------------------
+// Para Auto: partimos del valor de mercado real del vehiculo (Arg Autos API,
+// https://argautos.com) y aplicamos porcentajes anuales de referencia segun
+// comparadores de seguros de Argentina 2026 (seguroya.com.ar, seguros911.com.ar,
+// segundoenfoque.com): Terceros Completo ~2.5%/anio, Todo Riesgo ~6%/anio del
+// valor del vehiculo. RC es un piso legal que no escala con el valor del auto.
+// Para Moto no hay API de valuacion gratuita en Argentina, asi que se mantiene
+// una estimacion por marca/antiguedad. TODOS los valores son orientativos: el
+// precio final lo confirma el asesor con la aseguradora (ver PriceComparison.tsx).
 
-export const BASE_MONTHLY_RATE: Record<VehicleType, number> = {
-  Auto: 15000, // ARS/mes, base RC para un vehiculo de gama "mid"
-  Moto: 7000,
-};
+export const RC_BASE_MONTHLY_AUTO = 32000; // ARS/mes, piso RC para un auto tipo
+export const TC_ANNUAL_PCT_OF_VALUE = 0.025; // Terceros Completo ~2.5% anual del valor
+export const TR_ANNUAL_PCT_OF_VALUE = 0.06; // Todo Riesgo ~6% anual del valor
+
+export const BASE_MONTHLY_RATE_MOTO = 7000; // ARS/mes, base RC para una moto "mid"
 
 export const TIER_MULTIPLIER: Record<CoverageTier, number> = {
   rc: 1,
@@ -122,30 +128,58 @@ function getAgeFactor(ageYears: number): number {
   );
 }
 
-function getBrandTier(vehicleType: VehicleType, brandName: string): BrandTier {
-  const list = vehicleType === "Moto" ? MOTO_BRANDS : CAR_BRANDS;
-  return list.find((b) => b.name === brandName)?.tier ?? "mid";
+function getMotoBrandTier(brandName: string): BrandTier {
+  return MOTO_BRANDS.find((b) => b.name === brandName)?.tier ?? "mid";
 }
 
 function roundToNearest(value: number, step: number): number {
   return Math.round(value / step) * step;
 }
 
-export function calculateAutoMotoQuote(
+function calculateAutoQuote(
   input: VehicleQuoteInput,
-  franquiciaPct: FranquiciaPct = 0,
+  franquiciaPct: FranquiciaPct,
+): QuoteResult {
+  const vehicleValueARS = input.vehicleValueARS ?? 0;
+  const zoneMultiplier = getZoneMultiplier(input.postalCode);
+
+  const tiers: TierPrice[] = COVERAGE_TIERS.map((tier) => {
+    const gncMultiplier = tier !== "rc" && input.hasGnc ? 1 + GNC_SURCHARGE_PCT : 1;
+    let price: number;
+    if (tier === "rc") {
+      price = RC_BASE_MONTHLY_AUTO * zoneMultiplier;
+    } else {
+      const annualPct = tier === "terceros-completo" ? TC_ANNUAL_PCT_OF_VALUE : TR_ANNUAL_PCT_OF_VALUE;
+      price = (vehicleValueARS * annualPct) / 12 * zoneMultiplier * gncMultiplier;
+      if (tier === "todo-riesgo") {
+        price *= 1 - (FRANQUICIA_DISCOUNT[franquiciaPct] ?? 0);
+      }
+    }
+    return {
+      tier,
+      label: TIER_LABELS[tier],
+      monthlyPrice: roundToNearest(price, 500),
+      benefits: TIER_BENEFITS[tier],
+    };
+  });
+
+  return { tiers, vehicleValueARS: input.vehicleValueARS };
+}
+
+function calculateMotoQuote(
+  input: VehicleQuoteInput,
+  franquiciaPct: FranquiciaPct,
 ): QuoteResult {
   const currentYear = new Date().getFullYear();
-  const brandTier = getBrandTier(input.vehicleType, input.brand);
+  const brandTier = getMotoBrandTier(input.brand);
   const vehicleAgeYears = Math.max(0, currentYear - (Number(input.year) || currentYear));
   const ageFactor = getAgeFactor(vehicleAgeYears);
   const zoneMultiplier = getZoneMultiplier(input.postalCode);
-  const base = BASE_MONTHLY_RATE[input.vehicleType];
 
   const tiers: TierPrice[] = COVERAGE_TIERS.map((tier) => {
     const gncMultiplier = tier !== "rc" && input.hasGnc ? 1 + GNC_SURCHARGE_PCT : 1;
     let price =
-      base *
+      BASE_MONTHLY_RATE_MOTO *
       TIER_MULTIPLIER[tier] *
       BRAND_TIER_MULTIPLIER[brandTier] *
       ageFactor *
@@ -162,7 +196,16 @@ export function calculateAutoMotoQuote(
     };
   });
 
-  return { tiers, brandTier, vehicleAgeYears };
+  return { tiers };
+}
+
+export function calculateAutoMotoQuote(
+  input: VehicleQuoteInput,
+  franquiciaPct: FranquiciaPct = 0,
+): QuoteResult {
+  return input.vehicleType === "Auto"
+    ? calculateAutoQuote(input, franquiciaPct)
+    : calculateMotoQuote(input, franquiciaPct);
 }
 
 export function formatPriceARS(amount: number): string {

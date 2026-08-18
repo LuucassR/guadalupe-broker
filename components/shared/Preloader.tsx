@@ -4,16 +4,17 @@ import { useState, useEffect } from "react";
 import LoadingSplash from "./LoadingSplash";
 
 export default function Preloader({ children }: { children: React.ReactNode }) {
-  const [loaded, setLoaded] = useState(
-    () => typeof document !== "undefined" && document.readyState === "complete",
-  );
+  const [loaded, setLoaded] = useState(false);
 
   useEffect(() => {
-    if (loaded) return;
-    const onLoad = () => setLoaded(true);
-    window.addEventListener("load", onLoad);
-    return () => window.removeEventListener("load", onLoad);
-  }, [loaded]);
+    const markLoaded = () => requestAnimationFrame(() => setLoaded(true));
+    if (document.readyState === "complete") {
+      markLoaded();
+      return;
+    }
+    window.addEventListener("load", markLoaded);
+    return () => window.removeEventListener("load", markLoaded);
+  }, []);
 
   return (
     <>
