@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import { Menu, X, Phone } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
-import { SITE_CONFIG, BRANCHES } from "@/constants/site";
+import { SITE_CONFIG, BRANCHES, MULTICOTIZADOR_ENABLED } from "@/constants/site";
 
 const NAV_LINKS = [
   { href: "/", label: "Inicio" },
@@ -31,9 +31,11 @@ export default function Navbar() {
     <header className="fixed top-0 left-0 z-50 w-full">
       <div className="bg-brand-dark hidden items-center justify-between px-8 py-2 text-[11px] font-semibold tracking-wide text-white/70 md:flex">
         <div className="flex items-center gap-6">
-          <Link href="#cotizador" className="uppercase transition-colors hover:text-white">
-            Cotizador online
-          </Link>
+          {MULTICOTIZADOR_ENABLED && (
+            <Link href="#cotizador" className="uppercase transition-colors hover:text-white">
+              Cotizador online
+            </Link>
+          )}
           <Link
             href={`mailto:${mainBranch.email}?subject=${encodeURIComponent("Dejo mi CV")}`}
             className="uppercase transition-colors hover:text-white"

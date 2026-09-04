@@ -8,9 +8,11 @@ import HowItWorks from "@/components/sections/HowItWorks";
 import Testimonials from "@/components/sections/Testimonials";
 import CtaBanner from "@/components/sections/CtaBanner";
 import Cotizador from "@/components/shared/Cotizador";
+import AdvisorCta from "@/components/shared/AdvisorCta";
 import Preloader from "@/components/shared/Preloader";
 import SectionLabel from "@/components/shared/SectionLabel";
 import SectionTitle from "@/components/shared/SectionTitle";
+import { MULTICOTIZADOR_ENABLED } from "@/constants/site";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
@@ -34,15 +36,18 @@ export default function HomePage() {
           <div className="mx-auto max-w-150">
             <SectionLabel>Cotizador</SectionLabel>
             <SectionTitle size="md" className="mt-4">
-              Cotizá tu seguro de auto o moto en simples pasos
+              {MULTICOTIZADOR_ENABLED
+                ? "Cotizá tu seguro de auto o moto en simples pasos"
+                : "Cotizá tu seguro de auto o moto"}
             </SectionTitle>
             <p className="mt-3 text-sm leading-relaxed text-gray-600">
-              Completá el formulario y compará coberturas y precios al instante.
-              Un asesor confirma la mejor opción por WhatsApp.
+              {MULTICOTIZADOR_ENABLED
+                ? "Completá el formulario y compará coberturas y precios al instante. Un asesor confirma la mejor opción por WhatsApp."
+                : "Contanos qué necesitás y un asesor te responde por WhatsApp con la mejor opción."}
             </p>
           </div>
           <div className="mx-auto mt-8 max-w-4xl">
-            <Cotizador />
+            {MULTICOTIZADOR_ENABLED ? <Cotizador /> : <AdvisorCta />}
           </div>
         </div>
       </section>

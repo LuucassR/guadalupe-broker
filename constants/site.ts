@@ -554,6 +554,10 @@ export const COVERAGE_DETAILS: Record<
   },
 };
 
+// Apagado en production: el multicotizador todavia no esta listo para el
+// publico. En su lugar se muestra AdvisorCta (cotizacion por WhatsApp).
+export const MULTICOTIZADOR_ENABLED = false;
+
 export const SITE_CONFIG = {
   name: "Guadalupe Broker",
   tagline: "Corredora de Seguros",

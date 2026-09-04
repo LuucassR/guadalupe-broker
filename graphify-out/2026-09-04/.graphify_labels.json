@@ -1,10 +1,11 @@
 {
-  "0": "site.ts",
+  "0": "(public)/page.tsx",
   "1": "dependencies",
   "2": "Lucas David Rossi",
   "3": "devDependencies",
   "4": "compilerOptions",
   "5": "import-dnrpa-catalog.ts",
+  "6": "site.ts",
   "7": "CLAUDE.md",
   "8": "pricing.ts",
   "9": "pnpm ignoredBuiltDependencies config",
@@ -34,5 +35,8 @@
   "33": "Cotizador.tsx",
   "34": "import-cca-catalog.ts",
   "35": "xref-report.mjs",
-  "37": "Footer.tsx"
+  "36": "[slug]/page.tsx",
+  "37": "Footer.tsx",
+  "38": "coberturas/page.tsx",
+  "39": "clientes/page.tsx"
 }

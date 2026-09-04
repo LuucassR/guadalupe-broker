@@ -1,14 +1,16 @@
 import Link from "next/link";
-import { SITE_CONFIG } from "@/constants/site";
+import { SITE_CONFIG, MULTICOTIZADOR_ENABLED } from "@/constants/site";
 import { Calculator, Shield, MessageCircle, ArrowRight } from "lucide-react";
 
 const ACTIONS = [
   {
     icon: Calculator,
     title: "Cotizá tu seguro",
-    desc: "Auto o moto, en 3 pasos y sin costo.",
-    href: "#cotizador",
-    external: false,
+    desc: MULTICOTIZADOR_ENABLED
+      ? "Auto o moto, en 3 pasos y sin costo."
+      : "Auto o moto, por WhatsApp y sin costo.",
+    href: MULTICOTIZADOR_ENABLED ? "#cotizador" : SITE_CONFIG.whatsappUrl,
+    external: !MULTICOTIZADOR_ENABLED,
   },
   {
     icon: Shield,

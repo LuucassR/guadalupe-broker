@@ -10,8 +10,8 @@
     "semantic_hash": ""
   },
   "app/(public)/coberturas/[slug]/page.tsx": {
-    "mtime": 1788542056.1818135,
-    "ast_hash": "cdc811aef8d09db621e90e81a7d9ae3d",
+    "mtime": 1787841639.0452452,
+    "ast_hash": "0468f11598e8d1c7af42a328a6752623",
     "semantic_hash": ""
   },
   "app/(public)/coberturas/page.tsx": {
@@ -40,12 +40,12 @@
     "semantic_hash": ""
   },
   "app/(public)/page.tsx": {
-    "mtime": 1788542041.4860685,
-    "ast_hash": "f2fce6ad7f7720ac92ebb7e5d7a4d36c",
+    "mtime": 1788274755.7242205,
+    "ast_hash": "bbae9d62290e9f540fd49c2cc95b43d4",
     "semantic_hash": ""
   },
   "app/layout.tsx": {
-    "mtime": 1788542010.376635,
+    "mtime": 1788274764.4493365,
     "ast_hash": "bacea37c2439e349780ab0f1a4bf8408",
     "semantic_hash": ""
   },
@@ -55,8 +55,8 @@
     "semantic_hash": ""
   },
   "components/layout/Navbar.tsx": {
-    "mtime": 1788542079.944233,
-    "ast_hash": "033e821c36fde5a73e26f337886e1fea",
+    "mtime": 1787841639.047003,
+    "ast_hash": "121bf5483f2707ab7b428e975942435e",
     "semantic_hash": ""
   },
   "components/layout/WhatsAppFAB.tsx": {
@@ -75,8 +75,8 @@
     "semantic_hash": ""
   },
   "components/sections/Hero.tsx": {
-    "mtime": 1788542070.0627317,
-    "ast_hash": "a6b50deb4a6917877e9c9a36484e5700",
+    "mtime": 1788274804.3090484,
+    "ast_hash": "8dcd49bc8238bd54faa8d611ca40cd63",
     "semantic_hash": ""
   },
   "components/sections/MarqueeStrip.tsx": {
@@ -85,7 +85,7 @@
     "semantic_hash": ""
   },
   "components/sections/PinnedShowcase.tsx": {
-    "mtime": 1788542010.376705,
+    "mtime": 1788448898.3749218,
     "ast_hash": "6dd6806bf3d7d1356df33b70412643f2",
     "semantic_hash": ""
   },
@@ -95,7 +95,7 @@
     "semantic_hash": ""
   },
   "components/shared/Cotizador.tsx": {
-    "mtime": 1788542010.376705,
+    "mtime": 1788447173.8735342,
     "ast_hash": "77a54c5548e7ec53d906ebf2f5b546d6",
     "semantic_hash": ""
   },
@@ -110,7 +110,7 @@
     "semantic_hash": ""
   },
   "components/shared/Preloader.tsx": {
-    "mtime": 1788542010.376705,
+    "mtime": 1788274743.7562973,
     "ast_hash": "808f6d27fac180040e919ff8e8116aa1",
     "semantic_hash": ""
   },
@@ -125,8 +125,8 @@
     "semantic_hash": ""
   },
   "constants/site.ts": {
-    "mtime": 1788542021.3271189,
-    "ast_hash": "485965ed374b7441627917bbd30ea6d3",
+    "mtime": 1788381516.1676705,
+    "ast_hash": "fa64c7e1160bb13998341e047bb56941",
     "semantic_hash": ""
   },
   "eslint.config.mjs": {
@@ -160,7 +160,7 @@
     "semantic_hash": "8bb98366fd275dbc3d7f80b212f53362"
   },
   "package.json": {
-    "mtime": 1788542010.3879673,
+    "mtime": 1788445876.9290402,
     "ast_hash": "2a6b348530c50e414a17e80bdfe77db2",
     "semantic_hash": ""
   },
@@ -180,7 +180,7 @@
     "semantic_hash": "f15aaa42d5d299d091b1171097ea56ad"
   },
   "pnpm-workspace.yaml": {
-    "mtime": 1788542010.388705,
+    "mtime": 1788200460.2694035,
     "ast_hash": "85c0b563538511d85567e01eeb7f22e8",
     "semantic_hash": ""
   },
@@ -235,8 +235,8 @@
     "semantic_hash": ""
   },
   "components/sections/QuickActions.tsx": {
-    "mtime": 1788542091.8137474,
-    "ast_hash": "942c640cae34ec049ead136302b61847",
+    "mtime": 1787841639.04729,
+    "ast_hash": "8422a43e769f1bab81bcc94b679db28a",
     "semantic_hash": ""
   },
   "components/sections/Sucursales.tsx": {
@@ -270,7 +270,7 @@
     "semantic_hash": ""
   },
   "components/shared/PriceComparison.tsx": {
-    "mtime": 1788542010.376705,
+    "mtime": 1788274981.0124893,
     "ast_hash": "73418229d2141c3474d02f8da2206413",
     "semantic_hash": ""
   },
@@ -280,17 +280,17 @@
     "semantic_hash": ""
   },
   "constants/vehicles.ts": {
-    "mtime": 1788542010.376705,
+    "mtime": 1788200460.2674034,
     "ast_hash": "142f02249d90833243424f414ca7fd9c",
     "semantic_hash": ""
   },
   "lib/pricing.ts": {
-    "mtime": 1788542010.3867052,
+    "mtime": 1788200460.2684033,
     "ast_hash": "1fc7f736deaaa2754488bee28ec439da",
     "semantic_hash": ""
   },
   "lib/vehicle-valuation.ts": {
-    "mtime": 1788542010.3879673,
+    "mtime": 1788446440.2256737,
     "ast_hash": "76c0ccd8ca3785a9cd6467e0839ca607",
     "semantic_hash": ""
   },
@@ -330,152 +330,152 @@
     "semantic_hash": ""
   },
   "app/api/quote/route.ts": {
-    "mtime": 1788542102.799074,
-    "ast_hash": "6a8c48c0dc19cd627ebbd1c33bb1b11d",
+    "mtime": 1788381462.2639027,
+    "ast_hash": "03ff68b0e6d7b3900c53efdd6f159d62",
     "semantic_hash": ""
   },
   "docs/specs/sancor-automotores-1.0.0.json": {
-    "mtime": 1788542010.3787987,
+    "mtime": 1788183777.342413,
     "ast_hash": "d431ac71da8dde48474301dbebec922d",
     "semantic_hash": ""
   },
   "lib/quote-providers/normalize.ts": {
-    "mtime": 1788542010.3879673,
+    "mtime": 1788183661.3227303,
     "ast_hash": "ca67d4002f4c4dd8ed04c33675bea029",
     "semantic_hash": ""
   },
   "lib/quote-providers/registry.ts": {
-    "mtime": 1788542010.3879673,
+    "mtime": 1788200624.0972335,
     "ast_hash": "3ecd9e295f9568292efc2856807913da",
     "semantic_hash": ""
   },
   "lib/quote-providers/sancor.ts": {
-    "mtime": 1788542010.3879673,
+    "mtime": 1788192219.8221672,
     "ast_hash": "2c9a6962ea18fe17b9b84fcf8b804fa4",
     "semantic_hash": ""
   },
   "lib/quote-providers/types.ts": {
-    "mtime": 1788542010.3879673,
+    "mtime": 1788381353.2430902,
     "ast_hash": "9a8988751eee43b7fd0c994323a1a082",
     "semantic_hash": ""
   },
   "scripts/import-cca-catalog.ts": {
-    "mtime": 1788542010.390158,
+    "mtime": 1788442154.431271,
     "ast_hash": "01869b6bdc3aef3b525199aa915e14e8",
     "semantic_hash": ""
   },
   ".github/workflows/import-cca-catalog.yml": {
-    "mtime": 1788542010.3764815,
+    "mtime": 1787842541.1943033,
     "ast_hash": "a57b966f93d9e1c6344bdab5ffa0d247",
     "semantic_hash": ""
   },
   "docs/quote-providers.md": {
-    "mtime": 1788542010.377705,
+    "mtime": 1788447904.9553342,
     "ast_hash": "8a932be0e1566e6f734aa56583f0129f",
     "semantic_hash": ""
   },
   "docs/vehicle-valuation.md": {
-    "mtime": 1788542010.378969,
+    "mtime": 1788446754.0357976,
     "ast_hash": "0088975ba3793fee297229ea71232867",
     "semantic_hash": ""
   },
   "docs/specs/sancor-tokengenerator-v2-1.0.0.json": {
-    "mtime": 1788542010.378969,
+    "mtime": 1788187317.0317802,
     "ast_hash": "acee6e25f8ea9a4cbd106653c23185f0",
     "semantic_hash": ""
   },
   "e2e/cotizador-ui.spec.ts": {
-    "mtime": 1788542010.3791842,
+    "mtime": 1788280753.0371983,
     "ast_hash": "ac892ea77898fe253319008766b92188",
     "semantic_hash": ""
   },
   "e2e/formula-prices.spec.ts": {
-    "mtime": 1788542010.3791842,
+    "mtime": 1788191493.7327652,
     "ast_hash": "8833ffb3b643353e8e428e337ed2092c",
     "semantic_hash": ""
   },
   "e2e/quote-api.spec.ts": {
-    "mtime": 1788542010.3791842,
+    "mtime": 1788191493.7623262,
     "ast_hash": "572ba03489795699865ec73d80862c8e",
     "semantic_hash": ""
   },
   "playwright.config.ts": {
-    "mtime": 1788542010.3879673,
+    "mtime": 1788190479.6443932,
     "ast_hash": "546bc4e3b5d1094b5a4cbe3863eb2887",
     "semantic_hash": ""
   },
   "scripts/sancor-smoke.mjs": {
-    "mtime": 1788542010.390158,
+    "mtime": 1788192230.459072,
     "ast_hash": "1471453c0cd2ebeca1369be9c467826d",
     "semantic_hash": ""
   },
   "e2e/README.md": {
-    "mtime": 1788542010.378969,
+    "mtime": 1788200624.128443,
     "ast_hash": "0786131d394d8206f3491d0ccf6d59b7",
     "semantic_hash": ""
   },
   "components/shared/ProviderQuoteColumn.tsx": {
-    "mtime": 1788542010.376705,
+    "mtime": 1788448123.661194,
     "ast_hash": "58660860929a37b11f7f661133932824",
     "semantic_hash": ""
   },
   "e2e/quote-cooperacion.spec.ts": {
-    "mtime": 1788542010.3791842,
+    "mtime": 1788381628.0706863,
     "ast_hash": "85f82d73b43d39c245c7469721e431cc",
     "semantic_hash": ""
   },
   "lib/quote-providers/cooperacion.ts": {
-    "mtime": 1788542010.3867052,
+    "mtime": 1788447796.01335,
     "ast_hash": "8e2e6364616fc2dcaa7c665fab4aab0b",
     "semantic_hash": ""
   },
   "scripts/cooperacion-smoke.mjs": {
-    "mtime": 1788542010.3897827,
+    "mtime": 1788376986.2146993,
     "ast_hash": "5560864315d49fd19e00d48e2e7d2b5e",
     "semantic_hash": ""
   },
   "lib/quote-providers/vehicle-xref.ts": {
-    "mtime": 1788542010.3879673,
+    "mtime": 1788381329.7415326,
     "ast_hash": "90907b6fcdc5a2c51af701ed838f2be9",
     "semantic_hash": ""
   },
   "public/logos/cooperacion-seguros.png": {
-    "mtime": 1788542010.388705,
+    "mtime": 1788381494.6775393,
     "ast_hash": "5770cf4222a9bf0a5ca00d943beb847a",
     "semantic_hash": ""
   },
   "public/logos/el-norte.png": {
-    "mtime": 1788542010.3897827,
+    "mtime": 1788381408.353807,
     "ast_hash": "04daad0829fdfded6c566a9a18013d08",
     "semantic_hash": ""
   },
   "public/logos/iasper.png": {
-    "mtime": 1788542010.3897827,
+    "mtime": 1788381393.5437262,
     "ast_hash": "f856dbcd2157258b64994472e1122130",
     "semantic_hash": ""
   },
   "public/logos/rivadavia.png": {
-    "mtime": 1788542010.3897827,
+    "mtime": 1788381392.3369145,
     "ast_hash": "1e8f1e5e884dfac3e59900d27ab440d2",
     "semantic_hash": ""
   },
   "public/logos/sancor-seguros.png": {
-    "mtime": 1788542010.3897827,
+    "mtime": 1788381392.2179139,
     "ast_hash": "356ad009bec17ea9199d2e8476921f2e",
     "semantic_hash": ""
   },
   "scripts/xref-report.mjs": {
-    "mtime": 1788542010.390158,
+    "mtime": 1788381646.4391468,
     "ast_hash": "dc434b3d6a7cdd9acb0eef7d95e84882",
     "semantic_hash": ""
   },
   "scripts/import-dnrpa-catalog.ts": {
-    "mtime": 1788542010.390158,
+    "mtime": 1788446312.5479896,
     "ast_hash": "237c0079c9b72e83ffe2b050adc146ac",
     "semantic_hash": ""
   },
   ".github/workflows/import-dnrpa-catalog.yml": {
-    "mtime": 1788542010.376635,
+    "mtime": 1788446600.1713347,
     "ast_hash": "bf414737da5dc4331dd159b3afa1cef5",
     "semantic_hash": ""
   }

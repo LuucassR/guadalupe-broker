@@ -4,7 +4,13 @@ import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { AnimatePresence, motion } from "framer-motion";
-import { BRANCHES, INSURERS, COVERAGES } from "@/constants/site";
+import {
+  BRANCHES,
+  INSURERS,
+  COVERAGES,
+  SITE_CONFIG,
+  MULTICOTIZADOR_ENABLED,
+} from "@/constants/site";
 import { ArrowRight, ChevronLeft, ChevronRight } from "lucide-react";
 
 const SLIDES = [
@@ -122,7 +128,9 @@ export default function Hero() {
           </p>
           <div className="mt-7 flex flex-wrap gap-4">
             <Link
-              href="#cotizador"
+              href={MULTICOTIZADOR_ENABLED ? "#cotizador" : SITE_CONFIG.whatsappUrl}
+              target={MULTICOTIZADOR_ENABLED ? undefined : "_blank"}
+              rel={MULTICOTIZADOR_ENABLED ? undefined : "noopener noreferrer"}
               className="group bg-brand-purple hover:bg-brand-purple-hover inline-flex items-center gap-2.5 px-7 py-3.5 text-sm font-semibold tracking-wide text-white shadow-lg shadow-purple-900/10 transition-colors"
             >
               Cotiza ahora

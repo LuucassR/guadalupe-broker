@@ -8,6 +8,7 @@ import {
   HOW_TO_HIRE,
   COVERAGE_FAQ_MAP,
   SITE_CONFIG,
+  MULTICOTIZADOR_ENABLED,
 } from "@/constants/site";
 import {
   CheckCircle,
@@ -203,10 +204,16 @@ export default async function CoverageDetailPage({ params }: Props) {
             <>
               <SectionLabel>Cotizador</SectionLabel>
               <SectionTitle size="md" className="mt-4">
-                Cotiza {coverage.name.toLowerCase()} en simples pasos
+                {MULTICOTIZADOR_ENABLED
+                  ? `Cotiza ${coverage.name.toLowerCase()} en simples pasos`
+                  : `Cotiza ${coverage.name.toLowerCase()}`}
               </SectionTitle>
               <div className="mt-8">
-                <Cotizador />
+                {MULTICOTIZADOR_ENABLED ? (
+                  <Cotizador />
+                ) : (
+                  <AdvisorCta coverageName={coverage.name} />
+                )}
               </div>
             </>
           ) : (

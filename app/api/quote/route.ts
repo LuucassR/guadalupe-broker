@@ -3,6 +3,7 @@ import { z } from "zod";
 import { COVERAGE_TIERS } from "@/lib/pricing";
 import { quoteAll, getProvider, runProvider } from "@/lib/quote-providers/registry";
 import type { QuoteInput } from "@/lib/quote-providers/types";
+import { MULTICOTIZADOR_ENABLED } from "@/constants/site";
 
 const quoteSchema = z.object({
   vehicleType: z.enum(["Auto", "Moto"]),
@@ -26,6 +27,10 @@ const quoteSchema = z.object({
 });
 
 export async function POST(request: Request) {
+  if (!MULTICOTIZADOR_ENABLED) {
+    return NextResponse.json({ error: "No disponible" }, { status: 404 });
+  }
+
   let body: unknown;
   try {
     body = await request.json();
