@@ -1,0 +1,34 @@
+name: Importar tabla de valuación (DNRPA)
+
+# Bot mensual: descarga la Tabla de Valuación de Automotores de la DNRPA
+# (valor fiscal, año-modelo 2002-2011) y actualiza VehicleCatalogCache
+# (clave "dnrpa:catalog"). La usa el multicotizador para autos anteriores a
+# 2012, donde la Lista de la CCA no tiene datos. Ver docs/vehicle-valuation.md.
+on:
+  schedule:
+    - cron: "0 6 3 * *" # dia 3 de cada mes, 06:00 UTC (margen a que la DNRPA publique)
+  workflow_dispatch: {}
+
+jobs:
+  import:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: pnpm
+
+      - name: Instalar poppler-utils (pdftotext)
+        run: sudo apt-get update && sudo apt-get install -y poppler-utils
+
+      - name: Instalar dependencias
+        run: pnpm install --frozen-lockfile
+
+      - name: Correr importador
+        run: pnpm run import:dnrpa
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}

@@ -13,7 +13,7 @@ export interface VehicleQuoteInput {
   year: string;
   hasGnc: boolean;
   postalCode: string;
-  // Valor de mercado real en ARS (Arg Autos API). Requerido para Auto.
+  // Valor de mercado real en ARS (catalogo CCA). Requerido para Auto.
   vehicleValueARS?: number;
 }
 
@@ -30,8 +30,9 @@ export interface QuoteResult {
 }
 
 // --- Estimacion de prima ------------------------------------------------
-// Para Auto: partimos del valor de mercado real del vehiculo (Arg Autos API,
-// https://argautos.com) y aplicamos porcentajes anuales de referencia segun
+// Para Auto: partimos del valor de mercado real del vehiculo (catalogo propio
+// armado con la Lista de Precios de la CCA, cca.org.ar) y aplicamos porcentajes
+// anuales de referencia segun
 // comparadores de seguros de Argentina 2026 (seguroya.com.ar, seguros911.com.ar,
 // segundoenfoque.com): Terceros Completo ~2.5%/anio, Todo Riesgo ~6%/anio del
 // valor del vehiculo. RC es un piso legal que no escala con el valor del auto.

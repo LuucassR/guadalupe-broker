@@ -15,15 +15,23 @@ const sourceSans = Source_Sans_3({
 });
 
 export const metadata: Metadata = {
+  metadataBase: new URL("https://www.guadalupebroker.com.ar"),
   title: "Guadalupe Broker SRL | Corredora de Seguros · Santa Fe",
   description:
-    "Más de 60 años y 3 generaciones protegiendo familias y empresas en Santa Fe. Automotor, Hogar, Salud, ART y mas.",
+    "Más de 60 años y 3 generaciones protegiendo familias y empresas en Santa Fe. Automotor, Hogar, Salud, ART y más.",
   openGraph: {
     title: "Guadalupe Broker SRL | Corredora de Seguros",
-    description: "Mas de 60 años protegiendo familias y empresas en Santa Fe.",
+    description: "Más de 60 años protegiendo familias y empresas en Santa Fe.",
     siteName: "Guadalupe Broker",
     locale: "es_AR",
     type: "website",
+    images: ["/homePageImage.jpg"],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Guadalupe Broker SRL | Corredora de Seguros",
+    description: "Más de 60 años protegiendo familias y empresas en Santa Fe.",
+    images: ["/homePageImage.jpg"],
   },
 };
 

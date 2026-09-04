@@ -62,3 +62,36 @@ model FAQ {
   active   Boolean  @default(true)
   order    Int      @default(0)
 }
+
+// Catalogo de valuaciones de autos (marca -> modelo -> version -> precio por
+// anio-modelo) y tipo de cambio USD/ARS, ambos poblados fuera del request:
+// ver scripts/import-cca-catalog.ts y lib/vehicle-valuation.ts.
+model VehicleCatalogCache {
+  key       String   @id
+  payload   Json
+  expiresAt DateTime
+  updatedAt DateTime @updatedAt
+}
+
+// Cache persistente y auto-poblado del codigo de vehiculo de cada aseguradora
+// para una version del catalogo CCA. Cada proveedor del multicotizador tiene su
+// propio catalogo con ids propios; esta tabla mapea "la version CCA que eligio
+// el usuario" -> "el codigo de ese proveedor", resuelto en el primer quote de
+// ese auto por el resolver del provider (ver lib/quote-providers/vehicle-xref.ts).
+// Un operador puede corregir una fila a mano con source = "manual": esas nunca
+// se pisan. code = null es un "no existe en el catalogo del proveedor" cacheado
+// para no repetir el walk; se reintenta cuando la fila envejece (ver xref.ts).
+model ProviderVehicleXref {
+  providerId   String // "cooperacion", "sancor", ...
+  ccaVersionId Int // id estable de lib/vehicle-valuation.ts (hash FNV-1a)
+  code         String? // codigo del proveedor; null = no se encontro match
+  codeKind     String // "codigoVehiculoCMP" | "codigoInfoAuto" | "vehicleCode" | ...
+  matchedLabel String? // texto del catalogo del proveedor con el que matcheo
+  confidence   Int      @default(0) // 0-100, heuristica de match de la version
+  source       String   @default("auto") // "auto" | "manual"
+  resolvedAt   DateTime @updatedAt
+
+  @@id([providerId, ccaVersionId])
+  @@index([providerId, code])
+}
+

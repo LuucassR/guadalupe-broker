@@ -7,7 +7,14 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
-    "postinstall": "prisma generate"
+    "postinstall": "prisma generate",
+    "import:cca": "tsx scripts/import-cca-catalog.ts",
+    "import:dnrpa": "tsx scripts/import-dnrpa-catalog.ts",
+    "test:e2e": "playwright test",
+    "test:e2e:ui": "playwright test --ui",
+    "sancor:smoke": "node scripts/sancor-smoke.mjs",
+    "cooperacion:smoke": "node scripts/cooperacion-smoke.mjs",
+    "xref:report": "node scripts/xref-report.mjs"
   },
   "dependencies": {
     "@ai-sdk/anthropic": "^3.0.85",
@@ -25,6 +32,7 @@
     "zod": "^4.4.3"
   },
   "devDependencies": {
+    "@playwright/test": "^1.62.1",
     "@tailwindcss/postcss": "^4.3.1",
     "@types/node": "^20",
     "@types/react": "^19",
@@ -34,6 +42,7 @@
     "prettier": "3.8.4",
     "prettier-plugin-tailwindcss": "^0.8.0",
     "tailwindcss": "^4.3.1",
+    "tsx": "^4.23.12",
     "typescript": "^5"
   }
 }

@@ -8,7 +8,7 @@ export interface VehicleBrand {
 }
 
 // Nota: CAR_BRANDS ya no existe aca. Para Auto, marca/modelo/version y valor
-// real se consultan en vivo contra Arg Autos API via /api/vehicle-lookup
+// real se consultan contra el catalogo propio (CCA) via /api/vehicle-lookup
 // (ver components/shared/Cotizador.tsx y lib/vehicle-valuation.ts).
 
 export const MOTO_BRANDS: VehicleBrand[] = [

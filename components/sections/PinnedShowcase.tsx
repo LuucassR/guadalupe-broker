@@ -1,70 +1,12 @@
-"use client";
-
-import { useRef } from "react";
-import gsap from "gsap";
-import { ScrollTrigger } from "gsap/ScrollTrigger";
-import { useGSAP } from "@gsap/react";
 import { TIMELINE } from "@/constants/site";
 import SectionLabel from "@/components/shared/SectionLabel";
 import SectionTitle from "@/components/shared/SectionTitle";
 
-gsap.registerPlugin(ScrollTrigger);
-
 export default function PinnedShowcase() {
-  const sectionRef = useRef<HTMLDivElement>(null);
-  const trackRef = useRef<HTMLDivElement>(null);
-  const progressRef = useRef<HTMLDivElement>(null);
-
-  useGSAP(
-    () => {
-      const mm = gsap.matchMedia();
-
-      mm.add(
-        "(min-width: 768px) and (prefers-reduced-motion: no-preference)",
-        () => {
-          if (!trackRef.current || !sectionRef.current) return;
-          const track = trackRef.current;
-          const wrapper = sectionRef.current;
-          const distance = track.scrollWidth - wrapper.clientWidth;
-          if (distance <= 0) return;
-
-          const tween = gsap.to(track, {
-            x: -distance,
-            ease: "none",
-            scrollTrigger: {
-              trigger: wrapper,
-              start: "top top",
-              end: () => `+=${distance}`,
-              scrub: 1,
-              pin: true,
-              invalidateOnRefresh: true,
-              onUpdate: (self) => {
-                if (progressRef.current) {
-                  progressRef.current.style.width = `${self.progress * 100}%`;
-                }
-              },
-            },
-          });
-
-          return () => {
-            tween.scrollTrigger?.kill();
-            tween.kill();
-          };
-        },
-      );
-
-      return () => mm.revert();
-    },
-    { scope: sectionRef },
-  );
-
   return (
-    <section
-      ref={sectionRef}
-      className="bg-brand-dark relative overflow-hidden py-20 md:py-24"
-    >
+    <section className="bg-brand-dark relative py-20 md:py-24">
       <div className="mx-auto max-w-300 px-6">
-        <div className="mb-12 max-w-2xl">
+        <div className="mb-14 max-w-2xl">
           <SectionLabel tone="purple">Por que nosotros</SectionLabel>
           <SectionTitle tone="light" className="mt-4">
             Tres generaciones protegiendo a Santa Fe
@@ -74,39 +16,33 @@ export default function PinnedShowcase() {
             atraviesan generaciones en toda la provincia.
           </p>
         </div>
-      </div>
 
-      <div className="mx-6 mb-8 hidden h-px bg-white/10 md:block">
-        <div
-          ref={progressRef}
-          className="bg-brand-purple h-px w-0 transition-[width]"
-        />
-      </div>
-
-      <div
-        ref={trackRef}
-        className="flex flex-col gap-4 px-6 md:w-max md:flex-row md:gap-6"
-        style={{
-          paddingLeft: "max(24px, calc((100vw - 1200px) / 2 + 24px))",
-          paddingRight: "max(24px, calc((100vw - 1200px) / 2 + 24px))",
-        }}
-      >
-        {TIMELINE.map((item) => (
-          <div
-            key={item.year}
-            className="border-white/15 flex shrink-0 flex-col border bg-white/5 p-6 md:w-85"
-          >
-            <span className="text-brand-purple font-heading text-4xl font-bold md:text-5xl">
-              {item.year}
-            </span>
-            <h3 className="mt-4 text-base font-bold text-white">
-              {item.title}
-            </h3>
-            <p className="mt-2 text-sm leading-relaxed text-gray-300">
-              {item.desc}
-            </p>
-          </div>
-        ))}
+        <ol className="border-white/15 relative ml-1.5 border-l md:ml-3">
+          {TIMELINE.map((item) => (
+            <li
+              key={item.year}
+              className="relative pb-10 pl-8 last:pb-0 md:pl-12"
+            >
+              <span
+                aria-hidden
+                className="bg-brand-purple ring-brand-dark absolute top-1.5 -left-1.75 h-3.5 w-3.5 rounded-full ring-4"
+              />
+              <div className="flex flex-col gap-1 md:flex-row md:items-baseline md:gap-6">
+                <span className="text-brand-purple font-heading text-3xl leading-none font-bold md:w-28 md:shrink-0 md:text-4xl">
+                  {item.year}
+                </span>
+                <div>
+                  <h3 className="text-base font-bold text-white">
+                    {item.title}
+                  </h3>
+                  <p className="mt-2 max-w-xl text-sm leading-relaxed text-gray-300">
+                    {item.desc}
+                  </p>
+                </div>
+              </div>
+            </li>
+          ))}
+        </ol>
       </div>
     </section>
   );

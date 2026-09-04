@@ -8,12 +8,20 @@ export default function Preloader({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     const markLoaded = () => requestAnimationFrame(() => setLoaded(true));
-    if (document.readyState === "complete") {
+    // Ocultamos el splash cuando el DOM esta listo, no cuando termina de
+    // cargar cada imagen: esperar "load" (fotos del hero + logos externos)
+    // retrasa el LCP y deja el contenido en opacity-0 demasiado tiempo.
+    // El timeout es una red de seguridad para que nunca quede trabado.
+    const timeout = setTimeout(markLoaded, 2000);
+    if (document.readyState !== "loading") {
       markLoaded();
-      return;
+    } else {
+      document.addEventListener("DOMContentLoaded", markLoaded, { once: true });
     }
-    window.addEventListener("load", markLoaded);
-    return () => window.removeEventListener("load", markLoaded);
+    return () => {
+      clearTimeout(timeout);
+      document.removeEventListener("DOMContentLoaded", markLoaded);
+    };
   }, []);
 
   return (

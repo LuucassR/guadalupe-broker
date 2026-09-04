@@ -1,7 +1,26 @@
-// Cliente para Arg Autos API (https://argautos.com/docs/api), una API publica
-// y gratuita de valuaciones del mercado automotor argentino. Sin ARGAUTOS_API_KEY
-// el limite es de 3 req/min por IP; con una key gratuita sube a 15 req/min.
-const ARGAUTOS_BASE_URL = "https://argautos.com/api/v1";
+// Fuente de valuaciones de autos: catalogo propio armado con la Lista de
+// Precios oficial de la CCA (Camara del Comercio Automotor), importada una
+// vez por mes por scripts/import-cca-catalog.ts (ver ese archivo y
+// docs/vehicle-valuation.md para como correr el import y como migrar a otra
+// fuente de datos mas adelante). Los precios de la CCA estan en USD; se
+// convierten a ARS aca mismo con la cotizacion oficial del dia (Bluelytics).
+//
+// Reemplaza a Arg Autos API: esa API tenia un limite de 3 pedidos/min sin key
+// que el flujo de cotizacion (4 llamados seguidos: marcas, modelos, versiones,
+// valor) superaba con un solo usuario.
+import { prisma } from "@/lib/prisma";
+
+const CATALOG_CACHE_KEY = "cca:catalog";
+const LEGACY_CACHE_KEY = "dnrpa:catalog"; // años < 2012, ver scripts/import-dnrpa-catalog.ts
+const FX_CACHE_KEY = "fx:usd-ars";
+const FX_TTL_MS = 60 * 60 * 1000; // 1 hora, igual que hacia Arg Autos con Bluelytics
+
+// La CCA sólo publica año-modelo 2012+. Para autos más viejos usamos la tabla de
+// valuación de la DNRPA (valor FISCAL, ver import-dnrpa-catalog.ts). El front lo
+// rotula como "valor fiscal de referencia".
+export const LEGACY_MAX_YEAR = 2011;
+export const isLegacyYear = (year: number) =>
+  year >= 2002 && year <= LEGACY_MAX_YEAR;
 
 export interface VehicleBrandOption {
   id: number;
@@ -18,37 +37,150 @@ export interface VehicleVersionOption {
   name: string;
 }
 
-async function argautosFetch<T>(path: string, revalidateSeconds: number): Promise<T> {
-  const apiKey = process.env.ARGAUTOS_API_KEY;
-  const res = await fetch(`${ARGAUTOS_BASE_URL}${path}`, {
-    headers: apiKey ? { Authorization: `Bearer ${apiKey}` } : undefined,
-    next: { revalidate: revalidateSeconds },
-  });
-  if (!res.ok) {
-    if (res.status === 429) {
-      throw new Error("Arg Autos API: limite de pedidos alcanzado, intenta de nuevo en un minuto.");
-    }
-    throw new Error(`Arg Autos API respondio ${res.status}`);
+interface CatalogVersion {
+  id: number;
+  name: string;
+  valuationsUSD: Record<string, number>; // clave = anio ("2024") o "0km"
+}
+
+interface CatalogModel {
+  id: number;
+  name: string;
+  versions: CatalogVersion[];
+}
+
+interface CatalogBrand {
+  id: number;
+  name: string;
+  models: CatalogModel[];
+}
+
+// Catálogo DNRPA (años < 2012). No tiene nivel "versión": el "modelo" ya es la
+// granularidad de versión, y el valor viene en ARS (sin conversión).
+interface LegacyModel {
+  id: number;
+  name: string;
+  valuationsARS: Record<string, number>;
+}
+interface LegacyBrand {
+  id: number;
+  name: string;
+  models: LegacyModel[];
+}
+
+// Cache en memoria del proceso para no pegarle a Postgres en cada request de
+// un mismo flujo de cotizacion (marcas -> modelos -> versiones -> valor).
+let catalogMemo: { brands: CatalogBrand[]; loadedAt: number } | null = null;
+const CATALOG_MEMO_TTL_MS = 5 * 60 * 1000;
+
+async function loadCatalog(): Promise<CatalogBrand[]> {
+  if (catalogMemo && Date.now() - catalogMemo.loadedAt < CATALOG_MEMO_TTL_MS) {
+    return catalogMemo.brands;
   }
-  return res.json() as Promise<T>;
+  const row = await prisma.vehicleCatalogCache.findUnique({ where: { key: CATALOG_CACHE_KEY } });
+  if (!row) {
+    throw new Error(
+      "Todavia no se importo el catalogo de autos. Correr `npm run import:cca` (ver docs/vehicle-valuation.md).",
+    );
+  }
+  const brands = row.payload as unknown as CatalogBrand[];
+  catalogMemo = { brands, loadedAt: Date.now() };
+  return brands;
+}
+
+let legacyMemo: { brands: LegacyBrand[]; loadedAt: number } | null = null;
+
+async function loadLegacyCatalog(): Promise<LegacyBrand[]> {
+  if (legacyMemo && Date.now() - legacyMemo.loadedAt < CATALOG_MEMO_TTL_MS) {
+    return legacyMemo.brands;
+  }
+  const row = await prisma.vehicleCatalogCache.findUnique({
+    where: { key: LEGACY_CACHE_KEY },
+  });
+  if (!row) {
+    throw new Error(
+      "Todavia no se importo la tabla DNRPA (autos < 2012). Correr `npm run import:dnrpa`.",
+    );
+  }
+  const brands = row.payload as unknown as LegacyBrand[];
+  legacyMemo = { brands, loadedAt: Date.now() };
+  return brands;
+}
+
+const norm = (s: string) =>
+  s
+    .normalize("NFD")
+    .replace(/[̀-ͯ]/g, "")
+    .toUpperCase()
+    .trim();
+
+async function legacyBrandByAnyId(id: number): Promise<LegacyBrand | undefined> {
+  const [cca, legacy] = await Promise.all([loadCatalog(), loadLegacyCatalog()]);
+  const direct = legacy.find((b) => b.id === id);
+  if (direct) return direct;
+  const ccaName = cca.find((b) => b.id === id)?.name;
+  if (!ccaName) return undefined;
+  return legacy.find((b) => norm(b.name) === norm(ccaName));
+}
+
+async function getUsdArsRate(): Promise<number> {
+  const cached = await prisma.vehicleCatalogCache.findUnique({ where: { key: FX_CACHE_KEY } });
+  if (cached && cached.expiresAt > new Date()) {
+    return (cached.payload as { rate: number }).rate;
+  }
+
+  const res = await fetch("https://api.bluelytics.com.ar/v2/latest");
+  if (!res.ok) {
+    if (cached) return (cached.payload as { rate: number }).rate; // dato viejo es mejor que nada
+    throw new Error(`No se pudo obtener la cotizacion USD/ARS (Bluelytics respondio ${res.status}).`);
+  }
+  const data = (await res.json()) as { oficial: { value_sell: number } };
+  const rate = data.oficial.value_sell;
+
+  await prisma.vehicleCatalogCache.upsert({
+    where: { key: FX_CACHE_KEY },
+    create: { key: FX_CACHE_KEY, payload: { rate }, expiresAt: new Date(Date.now() + FX_TTL_MS) },
+    update: { payload: { rate }, expiresAt: new Date(Date.now() + FX_TTL_MS) },
+  });
+  return rate;
 }
 
 export async function fetchVehicleBrands(): Promise<VehicleBrandOption[]> {
-  const data = await argautosFetch<{ data: VehicleBrandOption[] }>("/brands", 60 * 60 * 24);
-  return data.data
-    .map((b) => ({ id: b.id, name: b.name }))
-    .sort((a, b) => a.name.localeCompare(b.name));
+  // Unión de marcas CCA (2012+) y DNRPA (< 2012). Se elige antes que el año, así
+  // que mostramos las de ambos catálogos; si una marca no tiene modelos para el
+  // año elegido, el paso siguiente queda vacío y cae al "no encuentro mi auto".
+  const [cca, legacy] = await Promise.all([
+    loadCatalog(),
+    loadLegacyCatalog().catch(() => [] as LegacyBrand[]),
+  ]);
+  const byName = new Map<string, VehicleBrandOption>();
+  for (const b of cca) byName.set(norm(b.name), { id: b.id, name: b.name });
+  for (const b of legacy)
+    if (!byName.has(norm(b.name)))
+      byName.set(norm(b.name), { id: b.id, name: b.name });
+  return [...byName.values()].sort((a, b) => a.name.localeCompare(b.name));
 }
 
 export async function fetchVehicleModels(
   brandId: number,
   year: number,
 ): Promise<VehicleModelOption[]> {
-  const data = await argautosFetch<{ data: VehicleModelOption[] }>(
-    `/brands/${brandId}/models?year=${year}&per_page=100`,
-    60 * 60 * 24,
-  );
-  return data.data
+  const yearKey = String(year);
+
+  if (isLegacyYear(year)) {
+    const brand = await legacyBrandByAnyId(brandId);
+    if (!brand) return [];
+    return brand.models
+      .filter((m) => m.valuationsARS[yearKey] !== undefined)
+      .map((m) => ({ id: m.id, name: m.name }))
+      .sort((a, b) => a.name.localeCompare(b.name));
+  }
+
+  const brands = await loadCatalog();
+  const brand = brands.find((b) => b.id === brandId);
+  if (!brand) return [];
+  return brand.models
+    .filter((m) => m.versions.some((v) => v.valuationsUSD[yearKey] !== undefined))
     .map((m) => ({ id: m.id, name: m.name }))
     .sort((a, b) => a.name.localeCompare(b.name));
 }
@@ -57,21 +189,58 @@ export async function fetchVehicleVersions(
   modelId: number,
   year: number,
 ): Promise<VehicleVersionOption[]> {
-  const data = await argautosFetch<{ data: VehicleVersionOption[] }>(
-    `/models/${modelId}/versions?year=${year}&per_page=100`,
-    60 * 60 * 24,
-  );
-  return data.data.map((v) => ({ id: v.id, name: v.name }));
+  // El catálogo DNRPA no tiene nivel "versión" — el modelo ya lo es. El front
+  // saltea este paso para años < 2012.
+  if (isLegacyYear(year)) return [];
+
+  const brands = await loadCatalog();
+  const yearKey = String(year);
+  for (const brand of brands) {
+    const model = brand.models.find((m) => m.id === modelId);
+    if (!model) continue;
+    return model.versions
+      .filter((v) => v.valuationsUSD[yearKey] !== undefined)
+      .map((v) => ({ id: v.id, name: v.name }));
+  }
+  return [];
 }
 
-export async function fetchVehicleValueARS(versionId: number, year: number): Promise<number> {
-  const data = await argautosFetch<{ data: { price: string }[] }>(
-    `/versions/${versionId}/valuations?currency=ARS&year=${year}`,
-    60 * 60,
-  );
-  const price = Number(data.data[0]?.price);
-  if (!price || Number.isNaN(price)) {
-    throw new Error("Arg Autos API no devolvio un valor para esa version.");
+export async function fetchVehicleValueARS(
+  versionId: number,
+  year: number,
+): Promise<number> {
+  const yearKey = String(year);
+
+  if (isLegacyYear(year)) {
+    // `versionId` en años < 2012 es el id del modelo DNRPA (el front usa el
+    // mismo id porque no hay paso de versión). Valor ya en ARS.
+    const legacy = await loadLegacyCatalog();
+    for (const brand of legacy) {
+      const model = brand.models.find((m) => m.id === versionId);
+      if (!model) continue;
+      const valueARS = model.valuationsARS[yearKey];
+      if (valueARS === undefined) {
+        throw new Error(
+          "La tabla DNRPA no tiene un valor para ese modelo en ese año.",
+        );
+      }
+      return Math.round(valueARS);
+    }
+    throw new Error("Modelo no encontrado en la tabla DNRPA.");
   }
-  return price;
+
+  const brands = await loadCatalog();
+  for (const brand of brands) {
+    for (const model of brand.models) {
+      const version = model.versions.find((v) => v.id === versionId);
+      if (!version) continue;
+      const priceUSD = version.valuationsUSD[yearKey];
+      if (priceUSD === undefined) {
+        throw new Error("El catalogo no tiene un valor para esa version en ese anio.");
+      }
+      const rate = await getUsdArsRate();
+      return Math.round(priceUSD * rate);
+    }
+  }
+  throw new Error("Version de vehiculo no encontrada en el catalogo.");
 }

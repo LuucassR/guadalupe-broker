@@ -95,37 +95,35 @@ export const INSURERS: Insurer[] = [
     shortName: "Sancor",
     color: "#00000",
     domain: "sancorseguros.com.ar",
-    image:
-      "https://www.guadalupebroker.com.ar/assets/images/sancor-seguros.png",
+    image: "/logos/sancor-seguros.png",
   },
   {
     name: "Rivadavia Seguros",
     shortName: "Rivadavia",
     color: "#00000",
     domain: "segurosrivadavia.com/",
-    image: "https://www.guadalupebroker.com.ar/assets/images/rivadavia.png",
+    image: "/logos/rivadavia.png",
   },
   {
     name: "El Norte Seguros",
     shortName: "Norte",
     color: "#00000",
     domain: "elnorte.com.ar",
-    image: "https://www.guadalupebroker.com.ar/assets/images/el-norte.png",
+    image: "/logos/el-norte.png",
   },
   {
     name: "Cooperación Seguros",
     shortName: "Cooperación",
     color: "#00000e",
     domain: "cooperacionseguros.com.ar",
-    image:
-      "https://www.guadalupebroker.com.ar/assets/images/cooperacion-seguros.png",
+    image: "/logos/cooperacion-seguros.png",
   },
   {
     name: "Iasper Seguros",
     shortName: "Iasper",
     color: "#00000",
     domain: "iapserseguros.seg.ar",
-    image: "https://www.guadalupebroker.com.ar/assets/images/iasper.png",
+    image: "/logos/iasper.png",
   },
 ];
 

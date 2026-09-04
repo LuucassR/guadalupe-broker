@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { AnimatePresence, motion } from "framer-motion";
@@ -22,12 +22,34 @@ const STATS = [
 
 export default function Hero() {
   const [slide, setSlide] = useState(0);
+  const touchStartX = useRef<number | null>(null);
 
   const prev = () => setSlide((s) => (s - 1 + SLIDES.length) % SLIDES.length);
   const next = () => setSlide((s) => (s + 1) % SLIDES.length);
 
+  // Auto-avance del carrusel, salvo que el usuario prefiera menos movimiento.
+  useEffect(() => {
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    const id = setInterval(
+      () => setSlide((s) => (s + 1) % SLIDES.length),
+      6000,
+    );
+    return () => clearInterval(id);
+  }, []);
+
+  const onTouchEnd = (e: React.TouchEvent) => {
+    if (touchStartX.current === null) return;
+    const dx = e.changedTouches[0].clientX - touchStartX.current;
+    if (Math.abs(dx) > 50) (dx < 0 ? next : prev)();
+    touchStartX.current = null;
+  };
+
   return (
-    <section className="relative flex min-h-160 flex-col justify-end overflow-hidden pt-24 md:min-h-180 md:pt-32">
+    <section
+      className="relative flex min-h-160 flex-col justify-end overflow-hidden pt-24 md:min-h-180 md:pt-32"
+      onTouchStart={(e) => (touchStartX.current = e.touches[0].clientX)}
+      onTouchEnd={onTouchEnd}
+    >
       <div className="absolute inset-0">
         <AnimatePresence mode="sync">
           <motion.div
@@ -54,33 +76,50 @@ export default function Hero() {
       <button
         onClick={prev}
         aria-label="Imagen anterior"
-        className="absolute top-1/2 left-4 z-10 hidden h-10 w-10 -translate-y-1/2 items-center justify-center border border-white/30 bg-white/10 text-white backdrop-blur transition-colors hover:bg-white/20 sm:flex"
+        className="absolute top-1/2 left-4 z-10 flex h-10 w-10 -translate-y-1/2 items-center justify-center border border-white/30 bg-white/10 text-white backdrop-blur transition-colors hover:bg-white/20"
       >
         <ChevronLeft className="h-5 w-5" />
       </button>
       <button
         onClick={next}
         aria-label="Imagen siguiente"
-        className="absolute top-1/2 right-4 z-10 hidden h-10 w-10 -translate-y-1/2 items-center justify-center border border-white/30 bg-white/10 text-white backdrop-blur transition-colors hover:bg-white/20 sm:flex"
+        className="absolute top-1/2 right-4 z-10 flex h-10 w-10 -translate-y-1/2 items-center justify-center border border-white/30 bg-white/10 text-white backdrop-blur transition-colors hover:bg-white/20"
       >
         <ChevronRight className="h-5 w-5" />
       </button>
+
+      <div className="absolute bottom-4 left-1/2 z-10 flex -translate-x-1/2 gap-2">
+        {SLIDES.map((_, i) => (
+          <button
+            key={i}
+            onClick={() => setSlide(i)}
+            aria-label={`Ir a la imagen ${i + 1}`}
+            aria-current={slide === i}
+            className={`h-1.5 rounded-full transition-all ${
+              slide === i ? "w-6 bg-white" : "w-1.5 bg-white/50 hover:bg-white/80"
+            }`}
+          />
+        ))}
+      </div>
 
       <div className="relative z-10 mx-auto w-full max-w-300 px-6 pb-16 md:pb-20">
         <motion.div
           initial={{ opacity: 0, y: 24 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
-          className="max-w-xl bg-white/50 p-8 shadow-[0_24px_60px_-24px_rgba(11,31,51,0.5)] md:p-10"
+          className="max-w-xl bg-white/85 p-8 shadow-[0_24px_60px_-24px_rgba(11,31,51,0.5)] backdrop-blur-md md:p-10"
         >
           <span className="text-brand-purple text-[11px] font-bold tracking-[0.2em] uppercase">
             Corredora de seguros · Santa Fe
           </span>
           <h1 className="font-heading text-brand-dark mt-4 text-[clamp(1.75rem,3.4vw,2.5rem)] leading-[1.15] font-bold tracking-tight">
-            Somos un broker de seguros especializado en identificar y
-            administrar riesgos, ofreciendo la mejor alternativa
-            costo-beneficio.
+            Protegé tu auto, tu casa y tu familia con el seguro que mejor se
+            adapta a vos.
           </h1>
+          <p className="mt-4 text-sm leading-relaxed text-gray-600">
+            Identificamos y administramos los riesgos por vos para ofrecerte la
+            mejor relación costo-beneficio entre decenas de aseguradoras.
+          </p>
           <div className="mt-7 flex flex-wrap gap-4">
             <Link
               href="#cotizador"
