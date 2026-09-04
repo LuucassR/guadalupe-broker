@@ -34,7 +34,7 @@ export default function FAQPage() {
                   setCategory(cat.id);
                   setOpenIndex(null);
                 }}
-                className={`px-4 py-2 text-xs font-semibold transition-colors ${
+                className={`cursor-pointer px-4 py-2 text-xs font-semibold transition-colors ${
                   category === cat.id
                     ? "bg-brand-dark text-white"
                     : "bg-gray-100 text-gray-600 hover:bg-gray-200"
@@ -53,7 +53,7 @@ export default function FAQPage() {
               >
                 <button
                   onClick={() => setOpenIndex(openIndex === i ? null : i)}
-                  className="flex w-full items-center justify-between px-5 py-4 text-left transition-colors hover:bg-gray-50/50"
+                  className="flex w-full cursor-pointer items-center justify-between px-5 py-4 text-left transition-colors hover:bg-gray-50/50"
                 >
                   <span className="text-brand-dark pr-4 text-sm font-semibold">
                     {faq.q}

@@ -97,7 +97,7 @@ export default function PriceComparison({
           <button
             type="button"
             onClick={() => onSelectTier(tier.tier)}
-            className={`mt-4 w-full py-2 text-xs font-semibold transition-colors ${
+            className={`mt-4 w-full cursor-pointer py-2 text-xs font-semibold transition-colors ${
               selectedTier === tier.tier
                 ? "bg-brand-accent text-white"
                 : "border border-gray-200 text-gray-600 hover:border-gray-300"
@@ -154,7 +154,7 @@ export default function PriceComparison({
         <button
           type="button"
           onClick={() => setShowWhy((s) => !s)}
-          className="flex w-full items-center gap-2 text-left text-xs font-semibold text-gray-700"
+          className="flex w-full cursor-pointer items-center gap-2 text-left text-xs font-semibold text-gray-700"
         >
           <Info className="text-brand-accent h-3.5 w-3.5 shrink-0" />
           ¿Por qué puede variar el precio final?
