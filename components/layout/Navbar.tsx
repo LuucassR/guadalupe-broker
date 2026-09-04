@@ -107,7 +107,7 @@ export default function Navbar() {
         </nav>
 
         <button
-          className="flex items-center gap-1.5 text-gray-900 md:hidden"
+          className="flex cursor-pointer items-center gap-1.5 text-gray-900 md:hidden"
           onClick={() => setOpen(!open)}
           aria-label={open ? "Cerrar menu" : "Abrir menu"}
         >
@@ -118,7 +118,7 @@ export default function Navbar() {
       {open && (
         <>
           <div
-            className="fixed inset-0 z-40 bg-black/10 md:hidden"
+            className="fixed inset-0 z-40 cursor-pointer bg-black/10 md:hidden"
             onClick={() => setOpen(false)}
           />
           <nav className="absolute top-full left-0 z-50 w-full border-t border-gray-100 bg-white p-5 shadow-lg md:hidden">

@@ -76,14 +76,14 @@ export default function Hero() {
       <button
         onClick={prev}
         aria-label="Imagen anterior"
-        className="absolute top-1/2 left-4 z-10 flex h-10 w-10 -translate-y-1/2 items-center justify-center border border-white/30 bg-white/10 text-white backdrop-blur transition-colors hover:bg-white/20"
+        className="absolute top-1/2 left-4 z-10 flex h-10 w-10 -translate-y-1/2 cursor-pointer items-center justify-center border border-white/30 bg-white/10 text-white backdrop-blur transition-colors hover:bg-white/20"
       >
         <ChevronLeft className="h-5 w-5" />
       </button>
       <button
         onClick={next}
         aria-label="Imagen siguiente"
-        className="absolute top-1/2 right-4 z-10 flex h-10 w-10 -translate-y-1/2 items-center justify-center border border-white/30 bg-white/10 text-white backdrop-blur transition-colors hover:bg-white/20"
+        className="absolute top-1/2 right-4 z-10 flex h-10 w-10 -translate-y-1/2 cursor-pointer items-center justify-center border border-white/30 bg-white/10 text-white backdrop-blur transition-colors hover:bg-white/20"
       >
         <ChevronRight className="h-5 w-5" />
       </button>
@@ -95,7 +95,7 @@ export default function Hero() {
             onClick={() => setSlide(i)}
             aria-label={`Ir a la imagen ${i + 1}`}
             aria-current={slide === i}
-            className={`h-1.5 rounded-full transition-all ${
+            className={`h-1.5 cursor-pointer rounded-full transition-all ${
               slide === i ? "w-6 bg-white" : "w-1.5 bg-white/50 hover:bg-white/80"
             }`}
           />

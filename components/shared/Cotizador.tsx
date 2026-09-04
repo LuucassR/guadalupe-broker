@@ -411,7 +411,7 @@ export default function Cotizador() {
             onClick={() =>
               setStep(step === 3 && manualVehicle ? 1 : step - 1)
             }
-            className="hover:border-brand-accent hover:text-brand-accent flex h-8 w-8 items-center justify-center border border-gray-200 text-gray-600 transition-colors"
+            className="hover:border-brand-accent hover:text-brand-accent flex h-8 w-8 cursor-pointer items-center justify-center border border-gray-200 text-gray-600 transition-colors"
             aria-label="Volver"
           >
             <ArrowLeft className="h-4 w-4" />
@@ -460,7 +460,7 @@ export default function Cotizador() {
                     setVehicleType(v);
                     setManualVehicle(false);
                   }}
-                  className={`flex flex-col items-center gap-2 border px-4 py-6 text-sm font-semibold transition-colors ${
+                  className={`flex cursor-pointer flex-col items-center gap-2 border px-4 py-6 text-sm font-semibold transition-colors ${
                     vehicleType === v
                       ? "border-brand-accent bg-brand-accent-soft text-brand-accent"
                       : "border-gray-200 text-gray-600 hover:border-gray-300 hover:bg-gray-50"
@@ -475,7 +475,7 @@ export default function Cotizador() {
           <button
             onClick={handleNext}
             disabled={!vehicleType}
-            className="bg-brand-accent hover:bg-brand-accent-hover mt-6 inline-flex w-full items-center justify-center gap-2 px-6 py-3 text-sm font-semibold text-white transition-colors disabled:opacity-40"
+            className="bg-brand-accent hover:bg-brand-accent-hover mt-6 inline-flex w-full cursor-pointer items-center justify-center gap-2 px-6 py-3 text-sm font-semibold text-white transition-colors disabled:cursor-not-allowed disabled:opacity-40"
           >
             Siguiente
           </button>
@@ -513,7 +513,7 @@ export default function Cotizador() {
                   <button
                     type="button"
                     onClick={() => setManualVehicle(false)}
-                    className="text-brand-accent shrink-0 text-xs font-semibold hover:underline"
+                    className="text-brand-accent shrink-0 cursor-pointer text-xs font-semibold hover:underline"
                   >
                     Volver a la búsqueda
                   </button>
@@ -635,7 +635,7 @@ export default function Cotizador() {
                   <button
                     type="button"
                     onClick={enterManualVehicle}
-                    className="text-brand-accent mt-2 text-xs font-medium hover:underline"
+                    className="text-brand-accent mt-2 cursor-pointer text-xs font-medium hover:underline"
                   >
                     No encuentro mi auto en la lista
                   </button>
@@ -747,7 +747,7 @@ export default function Cotizador() {
                           <button
                             type="button"
                             onClick={enterManualVehicle}
-                            className="text-brand-accent font-semibold hover:underline"
+                            className="text-brand-accent cursor-pointer font-semibold hover:underline"
                           >
                             Cargá tu auto a mano
                           </button>{" "}
@@ -999,7 +999,7 @@ export default function Cotizador() {
           <button
             onClick={handleNext}
             disabled={!step1Complete}
-            className="bg-brand-accent hover:bg-brand-accent-hover mt-6 inline-flex w-full items-center justify-center gap-2 px-6 py-3 text-sm font-semibold text-white transition-colors disabled:opacity-40"
+            className="bg-brand-accent hover:bg-brand-accent-hover mt-6 inline-flex w-full cursor-pointer items-center justify-center gap-2 px-6 py-3 text-sm font-semibold text-white transition-colors disabled:cursor-not-allowed disabled:opacity-40"
           >
             Siguiente
           </button>
@@ -1040,7 +1040,7 @@ export default function Cotizador() {
           <button
             onClick={handleNext}
             disabled={!selectedTier}
-            className="bg-brand-accent hover:bg-brand-accent-hover mx-auto mt-6 flex w-full max-w-xl items-center justify-center gap-2 px-6 py-3 text-sm font-semibold text-white transition-colors disabled:opacity-40"
+            className="bg-brand-accent hover:bg-brand-accent-hover mx-auto mt-6 flex w-full max-w-xl cursor-pointer items-center justify-center gap-2 px-6 py-3 text-sm font-semibold text-white transition-colors disabled:cursor-not-allowed disabled:opacity-40"
           >
             Siguiente
           </button>
@@ -1124,7 +1124,7 @@ export default function Cotizador() {
           <button
             onClick={handleNext}
             disabled={!contactComplete}
-            className="bg-brand-accent hover:bg-brand-accent-hover mt-6 inline-flex w-full items-center justify-center gap-2 px-6 py-3 text-sm font-semibold text-white transition-colors disabled:opacity-40"
+            className="bg-brand-accent hover:bg-brand-accent-hover mt-6 inline-flex w-full cursor-pointer items-center justify-center gap-2 px-6 py-3 text-sm font-semibold text-white transition-colors disabled:cursor-not-allowed disabled:opacity-40"
           >
             Cotizar ahora
           </button>
@@ -1175,14 +1175,14 @@ export default function Cotizador() {
             <button
               onClick={handleWhatsApp}
               disabled={submitting}
-              className="bg-whatsapp inline-flex items-center justify-center gap-2 px-8 py-3 text-sm font-semibold text-white transition-colors hover:brightness-110 disabled:opacity-60"
+              className="bg-whatsapp inline-flex cursor-pointer items-center justify-center gap-2 px-8 py-3 text-sm font-semibold text-white transition-colors hover:brightness-110 disabled:cursor-not-allowed disabled:opacity-60"
             >
               <Send className="h-4 w-4" />
               Enviar por WhatsApp
             </button>
             <button
               onClick={reset}
-              className="inline-flex items-center justify-center gap-2 border border-gray-200 px-8 py-3 text-sm font-semibold text-gray-600 transition-colors hover:border-gray-300"
+              className="inline-flex cursor-pointer items-center justify-center gap-2 border border-gray-200 px-8 py-3 text-sm font-semibold text-gray-600 transition-colors hover:border-gray-300"
             >
               Cotizar otro seguro
             </button>
