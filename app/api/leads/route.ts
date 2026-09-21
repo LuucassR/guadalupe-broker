@@ -16,6 +16,15 @@ const vehicleDetailsSchema = z
     selectedTier: z.enum(COVERAGE_TIERS).optional(),
     franquiciaPct: z.number().min(0).max(20).optional(),
     estimatedPrice: z.number().nonnegative().optional(),
+    selectedProvider: z
+      .object({
+        providerId: z.string().max(40),
+        providerName: z.string().max(80),
+        planId: z.string().max(80),
+        planName: z.string().max(120),
+        monthlyPremium: z.number().nonnegative(),
+      })
+      .optional(),
     quote: z
       .array(
         z.object({

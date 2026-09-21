@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import Image from "next/image";
+import { Check } from "lucide-react";
 import { formatPriceARS } from "@/lib/pricing";
 import { consultHeaders } from "@/lib/consult-session";
 
@@ -66,6 +67,15 @@ interface Plan {
   monthlyPremium: number | null;
 }
 
+// Plan de una aseguradora que el cliente eligio en el paso 2.
+export interface SelectedProviderPlan {
+  providerId: string;
+  providerName: string;
+  planId: string;
+  planName: string;
+  monthlyPremium: number;
+}
+
 type Status = "loading" | "unavailable" | "ok";
 
 interface Fetched {
@@ -77,9 +87,13 @@ interface Fetched {
 export default function ProviderQuoteColumn({
   provider,
   input,
+  selectedPlan,
+  onSelectPlan,
 }: {
   provider: ProviderColumn;
   input: ProviderColumnInput;
+  selectedPlan: SelectedProviderPlan | null;
+  onSelectPlan: (plan: SelectedProviderPlan) => void;
 }) {
   const [fetched, setFetched] = useState<Fetched | null>(null);
   const [logoError, setLogoError] = useState(false);
@@ -171,25 +185,64 @@ export default function ProviderQuoteColumn({
         )}
 
         {status === "ok" && (
-          <ul className="space-y-2.5">
-            {plans.map((p) => (
-              <li
-                key={p.planId}
-                className="flex items-center justify-between gap-3 border-b border-gray-100 pb-2 last:border-0 last:pb-0"
-              >
-                <span className="min-w-0 text-xs font-medium wrap-break-word text-gray-700">
-                  {p.planName}
-                </span>
-                <span
-                  className="text-sm font-bold whitespace-nowrap"
-                  style={{ color: provider.brandColor }}
-                >
-                  {p.monthlyPremium != null
-                    ? `${formatPriceARS(p.monthlyPremium)}/mes`
-                    : "-"}
-                </span>
-              </li>
-            ))}
+          <ul className="space-y-2">
+            {plans.map((p) => {
+              const premium = p.monthlyPremium;
+              const isSelected =
+                selectedPlan?.providerId === provider.id &&
+                selectedPlan.planId === p.planId;
+              return (
+                <li key={p.planId}>
+                  <button
+                    type="button"
+                    disabled={premium == null}
+                    aria-pressed={isSelected}
+                    data-testid={`${provider.id}-plan-${p.planId}`}
+                    onClick={() =>
+                      premium != null &&
+                      onSelectPlan({
+                        providerId: provider.id,
+                        providerName: provider.name,
+                        planId: p.planId,
+                        planName: p.planName,
+                        monthlyPremium: premium,
+                      })
+                    }
+                    className={`flex w-full cursor-pointer items-center justify-between gap-3 border p-2 text-left transition-colors disabled:cursor-not-allowed ${
+                      isSelected ? "" : "border-gray-100 hover:border-gray-300"
+                    }`}
+                    style={
+                      isSelected
+                        ? {
+                            borderColor: provider.brandColor,
+                            backgroundColor: `${provider.brandColor}14`,
+                          }
+                        : undefined
+                    }
+                  >
+                    <span className="min-w-0 text-xs font-medium wrap-break-word text-gray-700">
+                      {p.planName}
+                      {isSelected && (
+                        <span
+                          className="mt-0.5 flex items-center gap-1 text-[10px] font-semibold"
+                          style={{ color: provider.brandColor }}
+                        >
+                          <Check className="h-3 w-3" /> Seleccionado
+                        </span>
+                      )}
+                    </span>
+                    <span
+                      className="text-sm font-bold whitespace-nowrap"
+                      style={{ color: provider.brandColor }}
+                    >
+                      {premium != null
+                        ? `${formatPriceARS(premium)}/mes`
+                        : "-"}
+                    </span>
+                  </button>
+                </li>
+              );
+            })}
           </ul>
         )}
       </div>

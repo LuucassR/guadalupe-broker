@@ -1,7 +1,7 @@
 # Graph Report - guadalupe-broker  (2026-09-21)
 
 ## Corpus Check
-- 110 files · ~73,911 words
+- 110 files · ~73,751 words
 - Verdict: corpus is large enough that graph structure adds value.
 
 ## Summary

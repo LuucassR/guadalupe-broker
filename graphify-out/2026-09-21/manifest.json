@@ -114,9 +114,9 @@
     "semantic_hash": ""
   },
   "components/shared/Cotizador.tsx": {
-    "mtime": 1790001270.399017,
-    "seen": 1790001381.9688857,
-    "ast_hash": "bd0fc9750ca9e1341f3863db91486188",
+    "mtime": 1790000336.8478484,
+    "seen": 1790000652.216059,
+    "ast_hash": "4041ac1475a07cbe68b815cc1f163847",
     "semantic_hash": ""
   },
   "components/shared/FaqAccordion.tsx": {
@@ -714,9 +714,9 @@
     "semantic_hash": ""
   },
   "lib/visitor.ts": {
-    "mtime": 1790001265.3349805,
-    "seen": 1790001381.973508,
-    "ast_hash": "23d8d15fc17b480bdced7eef341e49bc",
+    "mtime": 1790000337.9902446,
+    "seen": 1790000652.2204878,
+    "ast_hash": "2721a64f0cbbe5c8520d7c953e9057fe",
     "semantic_hash": ""
   },
   "app/admin/(panel)/propuestas/page.tsx": {
@@ -780,9 +780,9 @@
     "semantic_hash": ""
   },
   "e2e/cotizador-resume.spec.ts": {
-    "mtime": 1790001275.4002101,
-    "seen": 1790001381.9709606,
-    "ast_hash": "4a1805704cf5dcfa3dfe9ef0614b8fdd",
+    "mtime": 1790000554.8058195,
+    "seen": 1790000652.2179651,
+    "ast_hash": "42ef14a9f68a39df4af85ba322830678",
     "semantic_hash": ""
   }
 }

@@ -12,7 +12,7 @@ const NAV: { href: string; label: string; icon: LucideIcon; exact?: boolean }[] 
   { href: "/admin/motos", label: "Motos", icon: Bike },
 ];
 
-const DOC_NAV: typeof NAV = [{ href: "/admin/propuestas", label: "Propuestas", icon: FileText }];
+const DOC_NAV: typeof NAV = [{ href: "/admin/propuestas", label: "Creacion de Documento", icon: FileText }];
 
 interface Props {
   user: { name: string; email: string; role: string };

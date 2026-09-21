@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState, useSyncExternalStore } from "react";
+import { useEffect, useRef, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { ArrowRight, Bike, Car, RotateCcw, X } from "lucide-react";
 import { formatPriceARS } from "@/lib/pricing";
@@ -15,19 +15,7 @@ import {
 // Popup "seguí donde lo dejaste": aparece cuando el navegador tiene guardado un
 // vehiculo de una visita anterior (ver lib/visitor.ts). Una vez por sesion.
 const DISMISSED_KEY = "gb-resume-dismissed";
-
-const subscribe = (cb: () => void) => {
-  window.addEventListener("storage", cb);
-  return () => window.removeEventListener("storage", cb);
-};
-
-// useSyncExternalStore necesita un valor estable: devolvemos el string crudo.
-const getRaw = () => {
-  try {
-    if (sessionStorage.getItem(DISMISSED_KEY)) return null;
-  } catch {}
-  return readSnapshotRaw();
-};
+const SHOW_DELAY_MS = 3000;
 
 const relativeTime = (savedAt: number) => {
   const days = Math.round((Date.now() - savedAt) / 86_400_000);
@@ -42,11 +30,22 @@ export default function ReturningVisitorPrompt({
 }: {
   onResume: (snap: VehicleSnapshot) => void;
 }) {
-  const raw = useSyncExternalStore(subscribe, getRaw, () => null);
-  const snap = useMemo(() => parseSnapshot(raw), [raw]);
+  const [snap, setSnap] = useState<VehicleSnapshot | null>(null);
   const [closed, setClosed] = useState(false);
   const primary = useRef<HTMLButtonElement>(null);
   const open = Boolean(snap) && !closed;
+
+  // Se lee el storage una sola vez, al entrar a la pagina; solo el popup se demora.
+  // Asi lo que el visitante empiece a cargar durante la espera no pisa lo guardado.
+  useEffect(() => {
+    try {
+      if (sessionStorage.getItem(DISMISSED_KEY)) return;
+    } catch {}
+    const found = parseSnapshot(readSnapshotRaw());
+    if (!found) return;
+    const timer = setTimeout(() => setSnap(found), SHOW_DELAY_MS);
+    return () => clearTimeout(timer);
+  }, []);
 
   const close = () => {
     try {
@@ -112,9 +111,13 @@ export default function ReturningVisitorPrompt({
                 </p>
                 {snap.version && <p className="truncate text-gray-600">{snap.version}</p>}
                 <p className="mt-1 text-gray-600">
-                  Año {snap.year}
-                  {snap.postalCode ? ` · CP ${snap.postalCode}` : ""}
-                  {snap.hasGnc ? " · con GNC" : ""}
+                  {[
+                    snap.year && `Año ${snap.year}`,
+                    snap.postalCode && `CP ${snap.postalCode}`,
+                    snap.hasGnc && "con GNC",
+                  ]
+                    .filter(Boolean)
+                    .join(" · ")}
                 </p>
                 {snap.valueARS ? (
                   <p className="text-gray-600">Valor de referencia {formatPriceARS(snap.valueARS)}</p>
