@@ -455,7 +455,10 @@ export default function ProposalEditor() {
         ref={previewRef}
         className="min-w-0 flex-1 lg:sticky lg:top-4 lg:max-h-[calc(100vh-2rem)] lg:self-start lg:overflow-y-auto print:static print:max-h-none print:overflow-visible"
       >
-        <div className="mb-3 flex justify-end print:hidden">
+        <div
+          className="mx-auto mb-3 flex justify-end print:hidden"
+          style={{ maxWidth: SHEET_WIDTH }}
+        >
           <button
             type="button"
             onClick={() => window.print()}
@@ -466,8 +469,8 @@ export default function ProposalEditor() {
         </div>
         <div
           data-testid="proposal-preview"
-          className="sheet-zoom relative w-full shadow-lg print:shadow-none"
-          style={{ zoom: scale }}
+          className="sheet-zoom relative mx-auto shadow-lg print:shadow-none"
+          style={{ zoom: scale, width: SHEET_WIDTH }}
         >
           <ProposalSheet doc={doc} />
           {/* Marca del fin de la hoja carta: lo que pase de aca sale en una 2da pagina. */}
