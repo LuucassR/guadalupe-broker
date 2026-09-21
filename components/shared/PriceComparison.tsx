@@ -138,7 +138,9 @@ export default function PriceComparison({
             </div>
             {tierCards}
           </div>
-          {PROVIDER_COLUMNS.map((provider) => (
+          {PROVIDER_COLUMNS.filter((p) =>
+            p.vehicleTypes.includes(providerInput.vehicleType),
+          ).map((provider) => (
             <ProviderQuoteColumn
               key={provider.id}
               provider={provider}

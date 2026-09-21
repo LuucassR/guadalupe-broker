@@ -5,6 +5,9 @@ import { AnimatePresence, motion } from "framer-motion";
 import { SITE_CONFIG } from "@/constants/site";
 import { Check, Send, ArrowLeft, Car, Bike, AlertCircle } from "lucide-react";
 import { MOTO_BRANDS } from "@/constants/vehicles";
+import { consultHeaders, resetConsultSession } from "@/lib/consult-session";
+import { clearSnapshot, saveSnapshot, type VehicleSnapshot } from "@/lib/visitor";
+import ReturningVisitorPrompt from "@/components/shared/ReturningVisitorPrompt";
 import {
   calculateAutoMotoQuote,
   formatPriceARS,
@@ -46,7 +49,9 @@ const inputClass =
 async function fetchVehicleLookup<T>(
   params: Record<string, string>,
 ): Promise<T> {
-  const res = await fetch(`/api/vehicle-lookup?${new URLSearchParams(params)}`);
+  const res = await fetch(`/api/vehicle-lookup?${new URLSearchParams(params)}`, {
+    headers: consultHeaders(),
+  });
   const json = await res.json();
   if (!res.ok) throw new Error(json.error || "Error consultando el vehículo");
   return json.data as T;
@@ -219,6 +224,69 @@ export default function Cotizador() {
     };
   }, [autoVersionId, autoYear]);
 
+  // Guarda en el navegador el vehiculo que se esta cotizando, para ofrecer
+  // retomarlo en la proxima visita (ver ReturningVisitorPrompt). No pisa nada
+  // mientras marca/modelo/año no esten resueltos.
+  useEffect(() => {
+    if (!vehicleType || !brand || !model || !year) return;
+    saveSnapshot({
+      vehicleType,
+      brand,
+      model,
+      version: selectedAutoVersionName || undefined,
+      year,
+      postalCode: postalCode || undefined,
+      hasGnc,
+      valueARS: vehicleValueARS ?? undefined,
+      manual: manualVehicle || undefined,
+      ids:
+        vehicleType === "Auto" &&
+        !manualVehicle &&
+        autoBrandId &&
+        autoModelId &&
+        autoVersionId
+          ? { brandId: autoBrandId, modelId: autoModelId, versionId: autoVersionId }
+          : undefined,
+    });
+  }, [
+    vehicleType,
+    brand,
+    model,
+    year,
+    selectedAutoVersionName,
+    postalCode,
+    hasGnc,
+    vehicleValueARS,
+    manualVehicle,
+    autoBrandId,
+    autoModelId,
+    autoVersionId,
+  ]);
+
+  // Restaura el vehiculo guardado y lleva al paso 1. Los efectos de arriba
+  // recargan modelos, versiones y valor a partir de los ids.
+  const resumeFromSnapshot = (snap: VehicleSnapshot) => {
+    setVehicleType(snap.vehicleType);
+    setPostalCode(snap.postalCode ?? "");
+    setHasGnc(Boolean(snap.hasGnc));
+    if (snap.manual) {
+      setManualVehicle(true);
+      setManualBrand(snap.brand);
+      setManualModel(snap.model);
+      setManualYear(snap.year);
+    } else if (snap.vehicleType === "Moto") {
+      setMotoBrand(snap.brand);
+      setMotoModel(snap.model);
+      setMotoYear(snap.year);
+    } else if (snap.ids) {
+      setAutoBrandId(snap.ids.brandId);
+      setAutoYear(snap.year);
+      setAutoModelId(snap.ids.modelId);
+      setAutoVersionId(snap.ids.versionId);
+    }
+    setStep(1);
+  };
+
   const quote = useMemo(() => {
     if (!vehicleType || !brand || !model || !year || !postalCode) return null;
     if (vehicleType === "Auto" && !vehicleValueARS) return null;
@@ -336,7 +404,7 @@ export default function Cotizador() {
     setSubmitting(true);
     fetch("/api/leads", {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers: consultHeaders({ "Content-Type": "application/json" }),
       body: JSON.stringify({
         name,
         phone,
@@ -364,6 +432,10 @@ export default function Cotizador() {
         },
       }),
     })
+      .then((res) => {
+        // Cotizacion terminada: ya no hay nada que retomar.
+        if (res.ok) clearSnapshot();
+      })
       .catch((err) => console.error("No se pudo guardar el lead", err))
       .finally(() => setSubmitting(false));
 
@@ -374,6 +446,8 @@ export default function Cotizador() {
   };
 
   const reset = () => {
+    resetConsultSession();
+    clearSnapshot();
     setStep(0);
     setVehicleType("");
     setMotoBrand("");
@@ -405,6 +479,7 @@ export default function Cotizador() {
       className="border border-gray-200 bg-white p-6 md:p-8"
       data-testid="cotizador"
     >
+      <ReturningVisitorPrompt onResume={resumeFromSnapshot} />
       <div className="mb-6 flex items-center gap-3">
         {step > 0 && (
           <button
@@ -1034,7 +1109,20 @@ export default function Cotizador() {
                         ? autoVersionId
                         : undefined,
                   }
-                : undefined
+                : vehicleType === "Moto"
+                  ? {
+                      // Las motos salen de una lista estatica: sin valuacion ni
+                      // catalogVersionId. Cooperación las valua con su tabla y
+                      // resuelve el codigo por marca + modelo.
+                      vehicleType: "Moto",
+                      brand,
+                      model,
+                      year: Number(year),
+                      vehicleValueARS: 0,
+                      hasGnc: false,
+                      postalCode,
+                    }
+                  : undefined
             }
           />
           <button

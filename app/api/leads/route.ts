@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
 import { prisma } from "@/lib/prisma";
+import { logConsult } from "@/lib/consult-log";
 import { COVERAGE_TIERS } from "@/lib/pricing";
 
 const vehicleDetailsSchema = z
@@ -45,6 +46,7 @@ export async function POST(request: Request) {
 
   const parsed = leadSchema.safeParse(body);
   if (!parsed.success) {
+    logConsult(request, { step: "lead", error: "Datos invalidos" });
     return NextResponse.json(
       { error: "Datos invalidos", issues: parsed.error.flatten() },
       { status: 400 },
@@ -62,6 +64,18 @@ export async function POST(request: Request) {
         source: parsed.data.source,
         details: parsed.data.details,
       },
+    });
+    const d = parsed.data.details;
+    logConsult(request, {
+      step: "lead",
+      vehicleType: d?.vehicleType,
+      brand: d?.brand,
+      model: d?.model,
+      year: d?.year ? Number(d.year) || undefined : undefined,
+      postalCode: d?.postalCode,
+      hasGnc: d?.hasGnc,
+      complete: true,
+      leadId: lead.id,
     });
     return NextResponse.json({ id: lead.id }, { status: 201 });
   } catch (err) {

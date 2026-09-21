@@ -117,6 +117,19 @@ export async function resolveProviderVehicleCode(
   return resolved;
 }
 
+// Id estable para vehiculos que no vienen del catalogo CCA (hoy: las motos, que
+// el Cotizador elige de una lista estatica). Mismo FNV-1a de 32 bits que usan los
+// scripts de import, asi cae en el mismo espacio de `ccaVersionId`; el prefijo
+// del `key` (ej. "moto::") evita choques con los ids del catalogo.
+export function staticVehicleId(key: string): number {
+  let hash = 0x811c9dc5;
+  for (let i = 0; i < key.length; i++) {
+    hash ^= key.charCodeAt(i);
+    hash = Math.imul(hash, 0x01000193);
+  }
+  return hash >>> 1; // positivo, cabe en un Int
+}
+
 // --- helpers de match por texto (los usan los liveResolver de cada proveedor) --
 
 // Normaliza para comparar: mayusculas, sin acentos, sin puntuacion, 1 espacio.

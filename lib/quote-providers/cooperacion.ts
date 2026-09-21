@@ -26,6 +26,7 @@ import {
   normalizeLabel,
   canonicalBrand,
   versionMatchScore,
+  staticVehicleId,
   type LiveResolver,
 } from "./vehicle-xref";
 
@@ -319,7 +320,8 @@ async function resolveTipo(
     authorization,
     "/Vehiculo/Tipos",
   );
-  const want = vehicleType === "Moto" ? "MOTO" : "AUTOMOVIL";
+  // Ojo: "MOTO" a secas matchearia por `includes` tambien "MOTONIVELADORA".
+  const want = vehicleType === "Moto" ? "MOTOCICLETA" : "AUTOMOVIL";
   const hit =
     rows.find((r) => normalizeLabel(r.descripcion ?? "") === want) ??
     rows.find((r) => normalizeLabel(r.descripcion ?? "").includes(want));
@@ -435,6 +437,72 @@ async function resolveVersionCMP(
   return best;
 }
 
+// "CB250 Twister" y "CB 250 TWISTER" tienen que dar los mismos tokens.
+function motoTokens(s: string): string[] {
+  return normalizeLabel(s)
+    .replace(/([A-Z])(\d)/g, "$1 $2")
+    .replace(/(\d)([A-Z])/g, "$1 $2")
+    .split(" ")
+    .filter(Boolean);
+}
+
+// En el catalogo de motos de Cooperación los "modelos" son categorias (CUB,
+// STREET, SPORT, ...) y el nombre comercial ("CB 250 TWISTER") esta en las
+// versiones; el Cotizador, en cambio, guarda ese nombre como "modelo". Por eso
+// no sirve la cadena de autos (resolveModelo + resolveVersionCMP): buscamos el
+// nombre entre las versiones de las categorias que lo contienen.
+//
+// Solo aceptamos el match si aparecen TODOS los tokens pedidos: cotizar otra
+// variante ("Bullet 350" -> "BULLET 500", "Trip 150" -> "TRIP 110") es peor que
+// no cotizar. Entre varias que matchean gana la de menos tokens de mas.
+async function resolveMotoCMP(
+  config: CooperacionConfig,
+  authorization: string,
+  tipo: string,
+  codigoMarca: string,
+  model: string,
+): Promise<{ cmp: number; label: string; score: number } | null> {
+  const wanted = motoTokens(model);
+  if (wanted.length === 0) return null;
+
+  // `/Modelos?modelo=` busca DENTRO de las versiones: devuelve solo las categorias
+  // que tienen alguna coincidencia, en vez de recorrer las ~20 de la marca.
+  const search = [...wanted].sort(
+    (a, b) =>
+      Number(/[A-Z]{3,}/.test(b)) - Number(/[A-Z]{3,}/.test(a)) ||
+      b.length - a.length,
+  )[0];
+  const categorias = await catalogGet<CatalogEntity>(
+    config,
+    authorization,
+    `/Vehiculo/Modelos?codigoMarca=${codigoMarca}&codigoTipoVehiculo=${tipo}&modelo=${encodeURIComponent(search)}`,
+  );
+
+  const versiones = (
+    await Promise.all(
+      categorias.map((c) =>
+        catalogGet<VersionEntity>(
+          config,
+          authorization,
+          `/Vehiculo/Versiones?CodigoTipoVehiculo=${tipo}&CodigoMarca=${codigoMarca}&IdModelo=${c.id}`,
+        ),
+      ),
+    )
+  )
+    .flat()
+    .filter((v) => Number(v.codigoVehiculoCMP) > 0 && v.modelo);
+
+  let best: { cmp: number; label: string; extra: number } | null = null;
+  for (const v of versiones) {
+    const have = new Set(motoTokens(v.modelo ?? ""));
+    if (!wanted.every((t) => have.has(t))) continue;
+    const extra = have.size - wanted.length;
+    if (!best || extra < best.extra)
+      best = { cmp: Number(v.codigoVehiculoCMP), label: v.modelo ?? "", extra };
+  }
+  return best && { cmp: best.cmp, label: best.label, score: 100 };
+}
+
 // LiveResolver para vehicle-xref.ts: hace la cadena completa del catalogo.
 function makeLiveResolver(config: CooperacionConfig): LiveResolver {
   return async (ref) => {
@@ -448,6 +516,21 @@ function makeLiveResolver(config: CooperacionConfig): LiveResolver {
       ref.brand,
     );
     if (!codigoMarca) return null;
+    if (ref.vehicleType === "Moto") {
+      const moto = await resolveMotoCMP(
+        config,
+        authorization,
+        tipo,
+        codigoMarca,
+        ref.model,
+      );
+      return moto && {
+        code: String(moto.cmp),
+        codeKind: "codigoVehiculoCMP",
+        matchedLabel: moto.label,
+        confidence: moto.score,
+      };
+    }
     const idModelo = await resolveModelo(
       config,
       authorization,
@@ -596,11 +679,21 @@ export const cooperacionProvider: QuoteProvider = {
           ? { key: "CodigoInfoAuto", value: infoauto }
           : null;
 
-    if (!vehicleId && input.catalogVersionId) {
+    // Las motos no tienen id de catalogo CCA (el Cotizador las elige de una
+    // lista estatica): la clave del cache xref sale de marca + modelo.
+    const catalogVersionId =
+      input.catalogVersionId ??
+      (input.vehicleType === "Moto"
+        ? staticVehicleId(
+            `moto::${normalizeLabel(input.brand)}::${normalizeLabel(input.model)}`,
+          )
+        : undefined);
+
+    if (!vehicleId && catalogVersionId) {
       const resolved = await resolveProviderVehicleCode(
         "cooperacion",
         {
-          catalogVersionId: input.catalogVersionId,
+          catalogVersionId,
           vehicleType: input.vehicleType,
           brand: input.brand,
           model: input.model,
@@ -625,7 +718,7 @@ export const cooperacionProvider: QuoteProvider = {
         ...base,
         ok: false,
         plans: [],
-        error: input.catalogVersionId
+        error: catalogVersionId
           ? "No encontramos este vehículo en el catálogo de Cooperación."
           : "Falta el codigo de vehiculo de Cooperación (providerCodes.cooperacion.codigoVehiculoCMP / codigoInfoAuto, o catalogVersionId).",
       };

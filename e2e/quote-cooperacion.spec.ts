@@ -113,3 +113,58 @@ test("POST /api/quote resuelve el codigo de vehiculo desde catalogVersionId (sin
     expect(cooperacion.error).toMatch(PENDING);
   }
 });
+
+// Motos: el Cotizador las elige de una lista estatica (sin id CCA ni valuacion),
+// asi que el adapter las resuelve por marca + modelo contra el catalogo de motos
+// de Cooperación y esta le pone el valor con su propia tabla.
+const MOTO_BODY = {
+  vehicleType: "Moto" as const,
+  brand: "Honda",
+  model: "CB250 Twister",
+  year: 2022,
+  vehicleValueARS: 0,
+  hasGnc: false,
+  postalCode: "3000",
+};
+
+test("POST /api/quote cotiza una moto en Cooperación por marca + modelo, sin valuacion propia", async ({
+  request,
+}) => {
+  const res = await request.post("/api/quote?provider=cooperacion", {
+    data: MOTO_BODY,
+  });
+  const body = await res.json();
+  console.log("[/api/quote moto]", JSON.stringify(body.data?.[0]?.plans));
+
+  expect(res.ok()).toBeTruthy();
+  const cooperacion = body.data[0];
+  expect(cooperacion.ok).toBe(true);
+  // Con el valor de la tabla de Cooperación salen RC + las coberturas con perdida total.
+  expect(cooperacion.plans.length).toBeGreaterThan(1);
+  for (const p of cooperacion.plans) {
+    expect(p.monthlyPremium).toBeGreaterThan(0);
+  }
+});
+
+test("POST /api/quote NO cotiza otra variante cuando la moto no esta en el catalogo de Cooperación", async ({
+  request,
+}) => {
+  // "Bullet 350" no existe en Cooperación (solo "BULLET 500"): mejor sin cotizar
+  // que cotizar la moto equivocada.
+  const res = await request.post("/api/quote?provider=cooperacion", {
+    data: { ...MOTO_BODY, brand: "Royal Enfield", model: "Bullet 350" },
+  });
+  const body = await res.json();
+  expect(res.ok()).toBeTruthy();
+  expect(body.data[0].ok).toBe(false);
+  expect(body.data[0].error).toMatch(/catálogo de Cooperación/);
+});
+
+test("POST /api/quote exige vehicleValueARS positivo para Auto (0 solo vale para Moto)", async ({
+  request,
+}) => {
+  const res = await request.post("/api/quote?provider=cooperacion", {
+    data: { ...AUTO_BODY, vehicleValueARS: 0 },
+  });
+  expect(res.status()).toBe(400);
+});

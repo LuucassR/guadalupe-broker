@@ -375,6 +375,37 @@ Cooperación. El adapter lo obtiene en este orden:
 Cada proveedor nuevo que necesite un código de catálogo implementa sólo su
 _liveResolver_; el cache/persistencia/override/reporte son compartidos.
 
+#### Motos (`vehicleType: "Moto"`)
+
+Cooperación cotiza motos con el mismo `Cotizar` (tipo de vehículo `013`
+`MOTOCICLETA`), pero el Cotizador las elige de una lista estática
+([constants/vehicles.ts](../constants/vehicles.ts) `MOTO_BRANDS`): no hay
+`catalogVersionId` ni valuación propia (`vehicleValueARS: 0`). Por eso:
+
+- **Clave del cache**: sin id CCA, el adapter usa
+  `staticVehicleId("moto::MARCA::MODELO")` (mismo FNV-1a que los import, en
+  `vehicle-xref.ts`) como `ccaVersionId` de `ProviderVehicleXref`.
+- **Otra cadena de catálogo**: en motos los "modelos" de Cooperación son
+  _categorías_ (`CUB`, `STREET`, `SPORT`, …) y el nombre comercial (`CB 250
+  TWISTER`) está en las _versiones_. `resolveMotoCMP` busca con
+  `GET /Vehiculo/Modelos?modelo=<token>` (busca dentro de las versiones, así
+  devuelve sólo las categorías relevantes), trae sus `/Versiones` y matchea por
+  tokens (`CB250` → `CB 250`).
+- **Match estricto**: sólo se acepta si aparecen **todos** los tokens pedidos;
+  entre varias gana la de menos tokens de más. Cotizar otra variante (`Bullet 350`
+  → `BULLET 500`, `Trip 150` → `TRIP 110`) es peor que no cotizar: ese caso da
+  `ok:false` y la UI muestra el copy de "no disponible".
+- **Valor**: se cotiza sin `ValorVehiculo`; Cooperación usa su tabla (Honda CB250
+  Twister 2022 → $5.707.000, planes `A`/`B`/`B1`/`B4`). Si no tiene valor para
+  esa moto devuelve sólo `A` (RC) y no hay reintento (`vehicleValueARS` = 0).
+- `/api/quote` acepta `vehicleValueARS: 0` **sólo** para `Moto`.
+- En la UI, `PROVIDER_COLUMNS[].vehicleTypes` decide qué aseguradoras se
+  muestran por tipo: hoy Sancor sólo `Auto`, Cooperación `Auto` y `Moto`.
+
+Cobertura medida (2026-09-18) contra la lista estática: 46 de 59 modelos
+matchean; los otros no están en el catálogo de Cooperación (p.ej. Gilera Fuoco
+200, Guerrero GLR 110, Keller Crosser 150) o son otra variante.
+
 ### Mapeo request (`QuoteInput` → `Cotizar`)
 
 | `QuoteInput`                                  | `Cotizar`                                                                  | Nota                                                                               |

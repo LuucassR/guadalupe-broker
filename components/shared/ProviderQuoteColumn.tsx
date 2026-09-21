@@ -3,8 +3,10 @@
 import { useEffect, useMemo, useState } from "react";
 import Image from "next/image";
 import { formatPriceARS } from "@/lib/pricing";
+import { consultHeaders } from "@/lib/consult-session";
 
-// Una columna de cotizacion en linea por aseguradora en el paso 2 del flujo Auto.
+// Una columna de cotizacion en linea por aseguradora en el paso 2 (Auto y Moto,
+// segun `vehicleTypes` de cada aseguradora).
 // Llama a `POST /api/quote?provider=<id>` y muestra los precios /mes que devuelve
 // ese `QuoteProvider`. Agregar una aseguradora a la UI = un item mas en
 // `PROVIDER_COLUMNS` (el adapter y su alta en lib/quote-providers/registry.ts van
@@ -32,6 +34,7 @@ export interface ProviderColumn {
   logoUrl: string;
   wordmark: string; // fallback si el logo no carga
   unavailableCopy: string;
+  vehicleTypes: ProviderColumnInput["vehicleType"][]; // tipos que cotiza en linea
 }
 
 export const PROVIDER_COLUMNS: ProviderColumn[] = [
@@ -41,6 +44,7 @@ export const PROVIDER_COLUMNS: ProviderColumn[] = [
     brandColor: "#AF1685", // magenta de marca
     logoUrl: "/logos/sancor-seguros.png",
     wordmark: "SANCOR SEGUROS",
+    vehicleTypes: ["Auto"],
     unavailableCopy:
       "La cotización en línea de Sancor no está disponible en este momento. Tu asesor la confirma junto con el resto de las compañías.",
   },
@@ -50,6 +54,7 @@ export const PROVIDER_COLUMNS: ProviderColumn[] = [
     brandColor: "#3AAA35", // verde de marca (aprox.)
     logoUrl: "/logos/cooperacion-seguros.png",
     wordmark: "COOPERACIÓN SEGUROS",
+    vehicleTypes: ["Auto", "Moto"],
     unavailableCopy:
       "La cotización en línea de Cooperación no está disponible en este momento. Tu asesor la confirma junto con el resto de las compañías.",
   },
@@ -93,7 +98,7 @@ export default function ProviderQuoteColumn({
     let active = true;
     fetch(`/api/quote?provider=${provider.id}`, {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers: consultHeaders({ "Content-Type": "application/json" }),
       body: bodyKey,
     })
       .then((r) => r.json())

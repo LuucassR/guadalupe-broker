@@ -158,3 +158,48 @@ test("Auto: si una aseguradora no esta operativa, su columna muestra el estado y
     await expect(column).toContainText(/no está disponible/i);
   }
 });
+
+test("Moto: solo cotiza en linea Cooperación (Sancor es solo Auto) y manda la moto sin valuacion", async ({
+  page,
+}) => {
+  await mockBackend(page, "ok");
+  const quoteBodies: Record<string, unknown>[] = [];
+  const quoteUrls: string[] = [];
+  page.on("request", (req) => {
+    if (!req.url().includes("/api/quote")) return;
+    quoteUrls.push(req.url());
+    quoteBodies.push(req.postDataJSON());
+  });
+
+  const cotizador = page.getByTestId("cotizador");
+  await page.goto("/");
+  await cotizador.scrollIntoViewIfNeeded();
+  await cotizador.getByRole("button", { name: "Moto", exact: true }).click();
+  await cotizador.getByRole("button", { name: "Siguiente" }).click();
+
+  await cotizador.locator("#moto-brand").selectOption({ label: "Honda" });
+  await cotizador.locator("#moto-model").selectOption({ label: "CB250 Twister" });
+  await cotizador.locator("#moto-year").selectOption({ index: 1 });
+  await cotizador.getByPlaceholder("Ej: 3000").fill("3000");
+  await cotizador.getByRole("button", { name: "Siguiente" }).click();
+  await expect(cotizador.getByText("Elegí tu cobertura")).toBeVisible();
+
+  const cooperacion = cotizador.getByTestId("cooperacion-column");
+  await expect(cooperacion).toBeVisible();
+  await expect(cooperacion.getByText(/\$\s*30\.500\s*\/mes/)).toBeVisible();
+  await expect(cotizador.getByTestId("sancor-column")).toHaveCount(0);
+
+  // (>= 1: en dev React StrictMode dispara el efecto dos veces.) Nunca a Sancor.
+  expect(quoteBodies.length).toBeGreaterThan(0);
+  for (const body of quoteBodies) {
+    expect(body).toMatchObject({
+      vehicleType: "Moto",
+      brand: "Honda",
+      model: "CB250 Twister",
+      vehicleValueARS: 0,
+      hasGnc: false,
+      postalCode: "3000",
+    });
+  }
+  expect(quoteUrls.every((u) => u.includes("provider=cooperacion"))).toBe(true);
+});

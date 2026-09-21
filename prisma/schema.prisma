@@ -95,3 +95,75 @@ model ProviderVehicleXref {
   @@index([providerId, code])
 }
 
+
+// ---------------------------------------------------------------------------
+// Panel de administracion (/admin)
+// ---------------------------------------------------------------------------
+
+// Usuario del panel. passwordHash es scrypt (lib/admin/password.ts), nunca la
+// clave en claro. role = "SUPERUSER" salta todos los chequeos de permisos;
+// el resto usa `permissions` (ver lib/admin/permissions.ts).
+model AdminUser {
+  id             String         @id @default(cuid())
+  email          String         @unique
+  name           String
+  passwordHash   String
+  role           String         @default("ADMIN") // "SUPERUSER" | "ADMIN" | "VIEWER"
+  permissions    String[]       @default([])
+  active         Boolean        @default(true)
+  failedAttempts Int            @default(0)
+  lockedUntil    DateTime?
+  lastLoginAt    DateTime?
+  createdAt      DateTime       @default(now())
+  updatedAt      DateTime       @updatedAt
+  sessions       AdminSession[]
+}
+
+// Sesion de login. En la DB solo se guarda el SHA-256 del token; el token en
+// claro vive unicamente en la cookie httpOnly del navegador. Cerrar sesion
+// borra la fila, asi que el token queda invalido del lado del servidor.
+model AdminSession {
+  id        String    @id @default(cuid())
+  tokenHash String    @unique
+  userId    String
+  user      AdminUser @relation(fields: [userId], references: [id], onDelete: Cascade)
+  expiresAt DateTime
+  userAgent String?
+  createdAt DateTime  @default(now())
+
+  @@index([userId])
+  @@index([expiresAt])
+}
+
+// Una fila por "consulta" de un cliente al cotizador: se crea con el primer
+// llamado a la API de esa sesion del navegador (header x-consult-session) y se
+// va completando con cada paso. status = "complete" cuando hubo una cotizacion
+// con precios o se creo un lead; si el cliente abandona antes queda "incomplete"
+// con los campos que alcanzo a cargar. Ver lib/consult-log.ts.
+model Consult {
+  id               String   @id @default(cuid())
+  sessionId        String   @unique
+  visitorId        String? // id anonimo del navegador (localStorage), une consultas de una misma persona
+  vehicleType      String? // "Auto" | "Moto"
+  brand            String?
+  model            String?
+  version          String?
+  year             Int?
+  vehicleValueARS  Float?
+  postalCode       String?
+  hasGnc           Boolean?
+  status           String   @default("incomplete") // "incomplete" | "complete"
+  lastStep         String // "brands" | "models" | "versions" | "value" | "quote" | "lead"
+  requestCount     Int      @default(1)
+  providerResults  Json? // { [providerId]: { ok, plans, minMonthly, error? } }
+  leadId           String?
+  lastError        String?
+  ipHash           String?
+  userAgent        String?
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
+  @@index([vehicleType, createdAt])
+  @@index([status, createdAt])
+  @@index([visitorId])
+}
