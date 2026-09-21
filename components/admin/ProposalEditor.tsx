@@ -265,7 +265,7 @@ export default function ProposalEditor() {
     <div className="flex flex-col gap-6 p-4 lg:flex-row lg:items-start lg:p-6 print:block print:p-0">
       <style>{PRINT_CSS}</style>
 
-      <div className="w-full space-y-3 lg:w-[440px] lg:shrink-0 print:hidden">
+      <div className="w-full space-y-3 lg:w-[360px] lg:shrink-0 print:hidden">
         <Section title="Encabezado">
           <StyledInput
             label="Rama"
@@ -466,7 +466,7 @@ export default function ProposalEditor() {
         </div>
         <div
           data-testid="proposal-preview"
-          className="sheet-zoom relative w-[816px] shadow-lg print:shadow-none"
+          className="sheet-zoom relative w-full shadow-lg print:shadow-none"
           style={{ zoom: scale }}
         >
           <ProposalSheet doc={doc} />
