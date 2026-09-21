@@ -5,7 +5,12 @@ import { AnimatePresence, motion } from "framer-motion";
 import { SITE_CONFIG } from "@/constants/site";
 import { Check, Send, ArrowLeft, Car, Bike, AlertCircle } from "lucide-react";
 import { MOTO_BRANDS } from "@/constants/vehicles";
-import { consultHeaders, resetConsultSession } from "@/lib/consult-session";
+import {
+  adoptConsultSessionId,
+  consultHeaders,
+  getConsultSessionId,
+  resetConsultSession,
+} from "@/lib/consult-session";
 import { clearSnapshot, saveSnapshot, type VehicleSnapshot } from "@/lib/visitor";
 import ReturningVisitorPrompt from "@/components/shared/ReturningVisitorPrompt";
 import {
@@ -20,6 +25,7 @@ import type {
   VehicleVersionOption,
 } from "@/lib/vehicle-valuation";
 import PriceComparison from "./PriceComparison";
+import type { SelectedProviderPlan } from "./ProviderQuoteColumn";
 
 const CURRENT_YEAR = new Date().getFullYear();
 // Catálogo CCA: 2012+. Catálogo DNRPA (valor fiscal): 2002-2011. Autos
@@ -113,6 +119,10 @@ export default function Cotizador() {
   const [phone, setPhone] = useState("");
   const [franquiciaPct, setFranquiciaPct] = useState<FranquiciaPct>(0);
   const [selectedTier, setSelectedTier] = useState<CoverageTier | "">("");
+  // Se elige una cosa u otra: una cobertura de la estimacion propia o un plan de
+  // una aseguradora.
+  const [selectedProviderPlan, setSelectedProviderPlan] =
+    useState<SelectedProviderPlan | null>(null);
   const [submitting, setSubmitting] = useState(false);
 
   const selectedMotoBrandModels =
@@ -225,10 +235,12 @@ export default function Cotizador() {
   }, [autoVersionId, autoYear]);
 
   // Guarda en el navegador el vehiculo que se esta cotizando, para ofrecer
-  // retomarlo en la proxima visita (ver ReturningVisitorPrompt). No pisa nada
-  // mientras marca/modelo/año no esten resueltos.
+  // retomarlo en la proxima visita (ver ReturningVisitorPrompt). Se guarda desde
+  // que hay marca (modelo/año pueden faltar si se abandona a mitad). No pisa nada
+  // mientras la marca no este resuelta, ni mientras se recargan modelos/versiones
+  // tras retomar (los nombres llegan con esos fetch).
   useEffect(() => {
-    if (!vehicleType || !brand || !model || !year) return;
+    if (!vehicleType || !brand || loadingModels || loadingVersions) return;
     saveSnapshot({
       vehicleType,
       brand,
@@ -240,15 +252,18 @@ export default function Cotizador() {
       valueARS: vehicleValueARS ?? undefined,
       manual: manualVehicle || undefined,
       ids:
-        vehicleType === "Auto" &&
-        !manualVehicle &&
-        autoBrandId &&
-        autoModelId &&
-        autoVersionId
-          ? { brandId: autoBrandId, modelId: autoModelId, versionId: autoVersionId }
+        vehicleType === "Auto" && !manualVehicle && autoBrandId
+          ? {
+              brandId: autoBrandId,
+              modelId: autoModelId || undefined,
+              versionId: autoVersionId || undefined,
+            }
           : undefined,
+      consultId: getConsultSessionId(),
+      step,
     });
   }, [
+    step,
     vehicleType,
     brand,
     model,
@@ -261,11 +276,14 @@ export default function Cotizador() {
     autoBrandId,
     autoModelId,
     autoVersionId,
+    loadingModels,
+    loadingVersions,
   ]);
 
   // Restaura el vehiculo guardado y lleva al paso 1. Los efectos de arriba
   // recargan modelos, versiones y valor a partir de los ids.
   const resumeFromSnapshot = (snap: VehicleSnapshot) => {
+    if (snap.consultId) adoptConsultSessionId(snap.consultId);
     setVehicleType(snap.vehicleType);
     setPostalCode(snap.postalCode ?? "");
     setHasGnc(Boolean(snap.hasGnc));
@@ -281,10 +299,15 @@ export default function Cotizador() {
     } else if (snap.ids) {
       setAutoBrandId(snap.ids.brandId);
       setAutoYear(snap.year);
-      setAutoModelId(snap.ids.modelId);
-      setAutoVersionId(snap.ids.versionId);
+      if (snap.ids.modelId) setAutoModelId(snap.ids.modelId);
+      if (snap.ids.versionId) setAutoVersionId(snap.ids.versionId);
+      // Con el valor guardado el comparador ya puede calcular; el efecto de
+      // valor lo refresca enseguida.
+      if (snap.valueARS) setVehicleValueARS(snap.valueARS);
     }
-    setStep(1);
+    // Vuelve al paso en que estaba. Contacto y cobertura elegida no se guardan,
+    // asi que no se pasa del comparador (o del contacto en modo manual).
+    setStep(Math.max(1, Math.min(snap.step ?? 1, snap.manual ? 3 : 2)));
   };
 
   const quote = useMemo(() => {
@@ -346,7 +369,7 @@ export default function Cotizador() {
   const handleNext = () => {
     if (step === 0 && vehicleType) setStep(1);
     else if (step === 1 && step1Complete) setStep(manualVehicle ? 3 : 2);
-    else if (step === 2 && selectedTier) setStep(3);
+    else if (step === 2 && (selectedTier || selectedProviderPlan)) setStep(3);
     else if (step === 3 && contactComplete) setStep(4);
   };
 
@@ -362,6 +385,7 @@ export default function Cotizador() {
     setAutoVersions([]);
     setVehicleValueARS(null);
     setSelectedTier("");
+    setSelectedProviderPlan(null);
     setLookupError("");
   };
 
@@ -391,6 +415,9 @@ export default function Cotizador() {
       if (selectedTier === "todo-riesgo")
         text += ` (franquicia ${franquiciaPct}%)`;
       text += ".";
+    }
+    if (selectedProviderPlan) {
+      text += ` Cobertura elegida: ${selectedProviderPlan.providerName} - ${selectedProviderPlan.planName} - ${formatPriceARS(selectedProviderPlan.monthlyPremium)}/mes.`;
     }
     text += ` CP: ${postalCode}. Nombre: ${name}, Email: ${email || "-"}, Tel: ${phone}`;
     return text;
@@ -423,7 +450,10 @@ export default function Cotizador() {
           selectedTier: selectedTier || undefined,
           franquiciaPct:
             selectedTier === "todo-riesgo" ? franquiciaPct : undefined,
-          estimatedPrice: selectedTierPrice?.monthlyPrice,
+          estimatedPrice:
+            selectedProviderPlan?.monthlyPremium ??
+            selectedTierPrice?.monthlyPrice,
+          selectedProvider: selectedProviderPlan ?? undefined,
           quote: quote?.tiers.map((t) => ({
             tier: t.tier,
             label: t.label,
@@ -472,6 +502,7 @@ export default function Cotizador() {
     setPhone("");
     setFranquiciaPct(0);
     setSelectedTier("");
+    setSelectedProviderPlan(null);
   };
 
   return (
@@ -483,9 +514,12 @@ export default function Cotizador() {
       <div className="mb-6 flex items-center gap-3">
         {step > 0 && (
           <button
-            onClick={() =>
-              setStep(step === 3 && manualVehicle ? 1 : step - 1)
-            }
+            onClick={() => {
+              // Al volver a editar el vehiculo, el precio elegido de una
+              // aseguradora deja de valer.
+              if (step === 2) setSelectedProviderPlan(null);
+              setStep(step === 3 && manualVehicle ? 1 : step - 1);
+            }}
             className="hover:border-brand-accent hover:text-brand-accent flex h-8 w-8 cursor-pointer items-center justify-center border border-gray-200 text-gray-600 transition-colors"
             aria-label="Volver"
           >
@@ -1081,6 +1115,12 @@ export default function Cotizador() {
         </div>
       )}
 
+      {step === 2 && !quote && (
+        <p role="status" className="text-sm text-gray-500">
+          Cargando tu cotización…
+        </p>
+      )}
+
       {step === 2 && quote && (
         <div>
           <PriceComparison
@@ -1088,7 +1128,15 @@ export default function Cotizador() {
             franquiciaPct={franquiciaPct}
             onFranquiciaChange={(pct) => setFranquiciaPct(pct as FranquiciaPct)}
             selectedTier={selectedTier}
-            onSelectTier={setSelectedTier}
+            onSelectTier={(tier) => {
+              setSelectedTier(tier);
+              setSelectedProviderPlan(null);
+            }}
+            selectedProviderPlan={selectedProviderPlan}
+            onSelectProviderPlan={(plan) => {
+              setSelectedProviderPlan(plan);
+              setSelectedTier("");
+            }}
             providerInput={
               vehicleType === "Auto" && vehicleValueARS
                 ? {
@@ -1127,7 +1175,7 @@ export default function Cotizador() {
           />
           <button
             onClick={handleNext}
-            disabled={!selectedTier}
+            disabled={!selectedTier && !selectedProviderPlan}
             className="bg-brand-accent hover:bg-brand-accent-hover mx-auto mt-6 flex w-full max-w-xl cursor-pointer items-center justify-center gap-2 px-6 py-3 text-sm font-semibold text-white transition-colors disabled:cursor-not-allowed disabled:opacity-40"
           >
             Siguiente
@@ -1256,6 +1304,13 @@ export default function Cotizador() {
               <p className="text-brand-dark mt-1 font-semibold">
                 {selectedTierPrice.label}:{" "}
                 {formatPriceARS(selectedTierPrice.monthlyPrice)}/mes aprox.
+              </p>
+            )}
+            {selectedProviderPlan && (
+              <p className="text-brand-dark mt-1 font-semibold">
+                {selectedProviderPlan.providerName} -{" "}
+                {selectedProviderPlan.planName}:{" "}
+                {formatPriceARS(selectedProviderPlan.monthlyPremium)}/mes
               </p>
             )}
           </div>

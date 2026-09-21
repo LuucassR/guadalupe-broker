@@ -11,6 +11,7 @@ import {
 import ProviderQuoteColumn, {
   PROVIDER_COLUMNS,
   type ProviderColumnInput,
+  type SelectedProviderPlan,
 } from "./ProviderQuoteColumn";
 
 interface PriceComparisonProps {
@@ -22,6 +23,8 @@ interface PriceComparisonProps {
   // Si viene (solo Auto), se agrega una columna por cada aseguradora de
   // PROVIDER_COLUMNS con su cotizacion en linea.
   providerInput?: ProviderColumnInput;
+  selectedProviderPlan: SelectedProviderPlan | null;
+  onSelectProviderPlan: (plan: SelectedProviderPlan) => void;
 }
 
 export default function PriceComparison({
@@ -31,6 +34,8 @@ export default function PriceComparison({
   selectedTier,
   onSelectTier,
   providerInput,
+  selectedProviderPlan,
+  onSelectProviderPlan,
 }: PriceComparisonProps) {
   const [showWhy, setShowWhy] = useState(false);
 
@@ -145,6 +150,8 @@ export default function PriceComparison({
               key={provider.id}
               provider={provider}
               input={providerInput}
+              selectedPlan={selectedProviderPlan}
+              onSelectPlan={onSelectProviderPlan}
             />
           ))}
         </div>

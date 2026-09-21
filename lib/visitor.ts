@@ -32,7 +32,13 @@ export interface VehicleSnapshot {
   valueARS?: number;
   manual?: boolean;
   // Ids del catalogo, para restaurar los selects de Auto sin volver a elegir.
-  ids?: { brandId: number; modelId: number; versionId: number };
+  // Modelo y version pueden faltar si se abandono el formulario a mitad.
+  ids?: { brandId: number; modelId?: number; versionId?: number };
+  // Id de la fila Consult (x-consult-session) de esta cotizacion, para que al
+  // retomarla el servidor siga la misma fila en vez de crear otra.
+  consultId?: string;
+  // Paso del formulario en que estaba (ver Cotizador). Puede faltar en snapshots viejos.
+  step?: number;
   savedAt: number;
 }
 
@@ -61,7 +67,7 @@ export function parseSnapshot(raw: string | null): VehicleSnapshot | null {
   if (!raw) return null;
   try {
     const s = JSON.parse(raw) as VehicleSnapshot;
-    if (!s.vehicleType || !s.brand || !s.model || !s.year) return null;
+    if (!s.vehicleType || !s.brand) return null;
     if (Date.now() - s.savedAt > SNAPSHOT_TTL_MS) return null;
     return s;
   } catch {

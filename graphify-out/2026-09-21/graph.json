@@ -3407,7 +3407,7 @@
       "file_type": "code",
       "norm_label": "clearsnapshot()",
       "source_file": "lib/visitor.ts",
-      "source_location": "L51"
+      "source_location": "L49"
     },
     {
       "id": "lib_visitor_getvisitorid",
@@ -3431,7 +3431,7 @@
       "file_type": "code",
       "norm_label": "parsesnapshot()",
       "source_file": "lib/visitor.ts",
-      "source_location": "L66"
+      "source_location": "L64"
     },
     {
       "id": "lib_visitor_readsnapshotraw",
@@ -3443,7 +3443,7 @@
       "file_type": "code",
       "norm_label": "readsnapshotraw()",
       "source_file": "lib/visitor.ts",
-      "source_location": "L58"
+      "source_location": "L56"
     },
     {
       "id": "lib_visitor_savesnapshot",
@@ -3455,7 +3455,7 @@
       "file_type": "code",
       "norm_label": "savesnapshot()",
       "source_file": "lib/visitor.ts",
-      "source_location": "L45"
+      "source_location": "L43"
     },
     {
       "id": "app_public_page",
@@ -8582,7 +8582,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "components/shared/Cotizador.tsx",
-      "source_location": "L286",
+      "source_location": "L284",
       "weight": 1.0
     },
     {
@@ -8594,7 +8594,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "components/shared/Cotizador.tsx",
-      "source_location": "L316",
+      "source_location": "L309",
       "weight": 1.0
     },
     {
@@ -8606,7 +8606,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "components/shared/Cotizador.tsx",
-      "source_location": "L343",
+      "source_location": "L336",
       "weight": 1.0
     },
     {
@@ -8618,7 +8618,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "components/shared/Cotizador.tsx",
-      "source_location": "L414",
+      "source_location": "L407",
       "weight": 1.0
     },
     {
@@ -8630,7 +8630,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "components/shared/Cotizador.tsx",
-      "source_location": "L434",
+      "source_location": "L427",
       "weight": 1.0
     },
     {
@@ -8642,7 +8642,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "components/shared/Cotizador.tsx",
-      "source_location": "L467",
+      "source_location": "L460",
       "weight": 1.0
     },
     {
@@ -8654,7 +8654,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "components/shared/Cotizador.tsx",
-      "source_location": "L479",
+      "source_location": "L472",
       "weight": 1.0
     },
     {
@@ -19828,7 +19828,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "lib/visitor.ts",
-      "source_location": "L45",
+      "source_location": "L43",
       "weight": 1.0
     },
     {
@@ -19839,7 +19839,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "lib/visitor.ts",
-      "source_location": "L51",
+      "source_location": "L49",
       "weight": 1.0
     },
     {
@@ -19850,7 +19850,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "lib/visitor.ts",
-      "source_location": "L58",
+      "source_location": "L56",
       "weight": 1.0
     },
     {
@@ -19861,7 +19861,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "lib/visitor.ts",
-      "source_location": "L66",
+      "source_location": "L64",
       "weight": 1.0
     },
     {

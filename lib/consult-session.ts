@@ -19,6 +19,13 @@ export function getConsultSessionId(): string | undefined {
   }
 }
 
+// Al retomar una cotizacion guardada, se sigue con su misma consulta.
+export function adoptConsultSessionId(id: string) {
+  try {
+    sessionStorage.setItem(KEY, id);
+  } catch {}
+}
+
 // Al empezar una cotizacion nueva, la siguiente consulta es una fila aparte.
 export function resetConsultSession() {
   try {

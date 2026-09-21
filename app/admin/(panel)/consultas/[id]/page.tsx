@@ -10,6 +10,8 @@ type Providers = Record<
   { ok: boolean; plans: number; minMonthly: number | null; error?: string }
 >;
 
+type ChosenPlan = { providerId: string; providerName: string; planName: string; monthlyPremium: number };
+
 export default async function ConsultDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
   const c = await prisma.consult.findUnique({ where: { id } });
@@ -19,9 +21,10 @@ export default async function ConsultDetailPage({ params }: { params: Promise<{ 
   const own = c.leadId
     ? await prisma.lead.findUnique({
         where: { id: c.leadId },
-        select: { name: true, phone: true, email: true },
+        select: { name: true, phone: true, email: true, details: true },
       })
     : null;
+  const chosen = (own?.details as { selectedProvider?: ChosenPlan } | null)?.selectedProvider;
   const viaVisitor = !own && c.visitorId ? (await identifyVisitors([c.visitorId])).get(c.visitorId) : undefined;
   const lead = own ?? viaVisitor ?? null;
   const visits = c.visitorId
@@ -73,7 +76,14 @@ export default async function ConsultDetailPage({ params }: { params: Promise<{ 
             <ul className="divide-y divide-slate-100 rounded-[12px] border border-slate-200">
               {Object.entries(providers).map(([pid, r]) => (
                 <li key={pid} className="flex items-center justify-between gap-4 px-4 py-3 text-sm">
-                  <span className="font-medium capitalize">{pid}</span>
+                  <span className="font-medium capitalize">
+                    {pid}
+                    {chosen?.providerId === pid && (
+                      <span className="ml-2 rounded-full bg-emerald-50 px-2 py-0.5 text-xs font-semibold text-emerald-700 normal-case">
+                        Elegida
+                      </span>
+                    )}
+                  </span>
                   {r.ok && r.plans > 0 ? (
                     <span className="text-slate-600">
                       {r.plans} planes · desde <b className="text-slate-900">{formatARS(r.minMonthly)}</b>/mes
@@ -84,6 +94,13 @@ export default async function ConsultDetailPage({ params }: { params: Promise<{ 
                 </li>
               ))}
             </ul>
+          )}
+
+          {chosen && (
+            <p className="mt-4 rounded-lg bg-emerald-50 px-4 py-3 text-sm text-emerald-800">
+              El cliente eligió <b>{chosen.providerName}</b> · {chosen.planName} ·{" "}
+              <b>{formatARS(chosen.monthlyPremium)}</b>/mes
+            </p>
           )}
         </section>
 
