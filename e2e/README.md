@@ -31,3 +31,12 @@ pnpm cooperacion:smoke -- --cmp 28571 --cp 2600 # + localidad + cotización
 
 Imprimen lo que responde cada endpoint de auth y de cotización. Útil para
 depurar credenciales / códigos. Ver [../docs/quote-providers.md](../docs/quote-providers.md).
+
+## Admin: propuestas
+
+`admin-proposal.spec.ts` prueba `/admin/propuestas` (ver
+[../docs/admin-propuestas.md](../docs/admin-propuestas.md)): que `/admin` y sus
+assets redirijan al login sin sesión, la vista en vivo del formulario, los botones
+de formato y que el PDF salga en una sola hoja carta. El login es el del panel
+(usuario en la DB): pasar `E2E_ADMIN_EMAIL` y `E2E_ADMIN_PASSWORD`; sin ellos los
+tests con sesión se saltean.

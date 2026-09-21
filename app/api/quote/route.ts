@@ -4,6 +4,7 @@ import { logConsult, type ConsultEvent } from "@/lib/consult-log";
 import { COVERAGE_TIERS } from "@/lib/pricing";
 import { quoteAll, getProvider, runProvider } from "@/lib/quote-providers/registry";
 import type { QuoteInput } from "@/lib/quote-providers/types";
+import { guardRequest } from "@/lib/security";
 
 const quoteSchema = z
   .object({
@@ -23,7 +24,13 @@ const quoteSchema = z
     zeroKm: z.boolean().optional(),
     trackingEquipment: z.boolean().optional(),
     providerCodes: z
-      .record(z.string(), z.record(z.string(), z.union([z.string(), z.number()])))
+      .record(
+        z.string().max(40),
+        z
+          .record(z.string().max(40), z.union([z.string().max(120), z.number()]))
+          .refine((codes) => Object.keys(codes).length <= 50),
+      )
+      .refine((byProvider) => Object.keys(byProvider).length <= 10)
       .optional(),
   })
   // Las motos no tienen valuacion propia (Cooperación usa su tabla): valor 0 OK.
@@ -33,6 +40,14 @@ const quoteSchema = z
   });
 
 export async function POST(request: Request) {
+  // Cada cotizacion consume la API (y credenciales) de las aseguradoras.
+  const rejected = guardRequest(request, {
+    name: "quote",
+    limit: 20,
+    windowMs: 10 * 60_000,
+  });
+  if (rejected) return rejected;
+
   let body: unknown;
   try {
     body = await request.json();
@@ -110,6 +125,9 @@ export async function POST(request: Request) {
     console.error("Error en /api/quote", err);
     const message = err instanceof Error ? err.message : "Error consultando proveedores";
     logConsult(request, { ...vehicle, error: message });
-    return NextResponse.json({ error: message }, { status: 502 });
+    return NextResponse.json(
+      { error: "Error consultando proveedores" },
+      { status: 502 },
+    );
   }
 }

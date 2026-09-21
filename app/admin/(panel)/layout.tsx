@@ -6,8 +6,8 @@ export default async function PanelLayout({ children }: { children: React.ReactN
   return (
     <>
       <Sidebar user={{ name: user.name, email: user.email, role: user.role }} />
-      <main className="lg:pl-64">
-        <div className="mx-auto max-w-6xl px-4 py-8 sm:px-8 sm:py-10">{children}</div>
+      <main className="lg:pl-64 print:pl-0">
+        <div className="mx-auto max-w-6xl px-4 py-8 sm:px-8 sm:py-10 print:max-w-none print:p-0">{children}</div>
       </main>
     </>
   );
