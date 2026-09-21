@@ -6,8 +6,21 @@ import {
   fetchVehicleVersions,
   fetchVehicleValueARS,
 } from "@/lib/vehicle-valuation";
+import { guardRequest } from "@/lib/security";
+
+function intParam(searchParams: URLSearchParams, key: string, max: number) {
+  const value = Number(searchParams.get(key));
+  return Number.isInteger(value) && value > 0 && value <= max ? value : null;
+}
 
 export async function GET(request: Request) {
+  const rejected = guardRequest(request, {
+    name: "vehicle-lookup",
+    limit: 60,
+    windowMs: 60_000,
+  });
+  if (rejected) return rejected;
+
   const { searchParams } = new URL(request.url);
   const action = searchParams.get("action");
 
@@ -19,8 +32,8 @@ export async function GET(request: Request) {
     }
 
     if (action === "models") {
-      const brandId = Number(searchParams.get("brandId"));
-      const year = Number(searchParams.get("year"));
+      const brandId = intParam(searchParams, "brandId", Number.MAX_SAFE_INTEGER);
+      const year = intParam(searchParams, "year", 2100);
       if (!brandId) return NextResponse.json({ error: "brandId invalido" }, { status: 400 });
       if (!year) return NextResponse.json({ error: "year invalido" }, { status: 400 });
       const data = await fetchVehicleModels(brandId, year);
@@ -30,8 +43,8 @@ export async function GET(request: Request) {
     }
 
     if (action === "versions") {
-      const modelId = Number(searchParams.get("modelId"));
-      const year = Number(searchParams.get("year"));
+      const modelId = intParam(searchParams, "modelId", Number.MAX_SAFE_INTEGER);
+      const year = intParam(searchParams, "year", 2100);
       if (!modelId) return NextResponse.json({ error: "modelId invalido" }, { status: 400 });
       if (!year) return NextResponse.json({ error: "year invalido" }, { status: 400 });
       const data = await fetchVehicleVersions(modelId, year);
@@ -40,8 +53,8 @@ export async function GET(request: Request) {
     }
 
     if (action === "value") {
-      const versionId = Number(searchParams.get("versionId"));
-      const year = Number(searchParams.get("year"));
+      const versionId = intParam(searchParams, "versionId", Number.MAX_SAFE_INTEGER);
+      const year = intParam(searchParams, "year", 2100);
       if (!versionId) return NextResponse.json({ error: "versionId invalido" }, { status: 400 });
       if (!year) return NextResponse.json({ error: "year invalido" }, { status: 400 });
       const data = await fetchVehicleValueARS(versionId, year);
@@ -54,6 +67,6 @@ export async function GET(request: Request) {
     console.error("Error en vehicle-lookup", err);
     const message = err instanceof Error ? err.message : "Error consultando valuacion";
     logConsult(request, { step: (action as "brands") ?? "brands", vehicleType: "Auto", error: message });
-    return NextResponse.json({ error: message }, { status: 502 });
+    return NextResponse.json({ error: "Error consultando valuacion" }, { status: 502 });
   }
 }

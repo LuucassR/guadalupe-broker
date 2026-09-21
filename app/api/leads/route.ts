@@ -3,6 +3,7 @@ import { z } from "zod";
 import { prisma } from "@/lib/prisma";
 import { logConsult } from "@/lib/consult-log";
 import { COVERAGE_TIERS } from "@/lib/pricing";
+import { guardRequest } from "@/lib/security";
 
 const vehicleDetailsSchema = z
   .object({
@@ -17,15 +18,25 @@ const vehicleDetailsSchema = z
     estimatedPrice: z.number().nonnegative().optional(),
     quote: z
       .array(
-        z.object({ tier: z.string(), label: z.string(), monthlyPrice: z.number() }),
+        z.object({
+          tier: z.string().max(40),
+          label: z.string().max(80),
+          monthlyPrice: z.number(),
+        }),
       )
+      .max(10)
       .optional(),
   })
   .optional();
 
 const leadSchema = z.object({
   name: z.string().trim().min(2, "Nombre muy corto").max(120),
-  phone: z.string().trim().min(6, "Telefono invalido").max(30),
+  phone: z
+    .string()
+    .trim()
+    .min(6, "Telefono invalido")
+    .max(30)
+    .regex(/^[\d+()\-\s.]+$/, "Telefono invalido"),
   email: z
     .union([z.email(), z.literal("")])
     .optional()
@@ -37,6 +48,13 @@ const leadSchema = z.object({
 });
 
 export async function POST(request: Request) {
+  const rejected = guardRequest(request, {
+    name: "leads",
+    limit: 5,
+    windowMs: 10 * 60_000,
+  });
+  if (rejected) return rejected;
+
   let body: unknown;
   try {
     body = await request.json();

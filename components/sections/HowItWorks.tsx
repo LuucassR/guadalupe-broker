@@ -1,50 +1,18 @@
 "use client";
 
 import { useRef } from "react";
-import { motion } from "framer-motion";
-import gsap from "gsap";
-import { ScrollTrigger } from "gsap/ScrollTrigger";
-import { useGSAP } from "@gsap/react";
+import { motion, useReducedMotion, useScroll } from "framer-motion";
 import { HOW_TO_HIRE } from "@/constants/site";
 import SectionLabel from "@/components/shared/SectionLabel";
 import SectionTitle from "@/components/shared/SectionTitle";
 
-gsap.registerPlugin(ScrollTrigger);
-
 export default function HowItWorks() {
   const sectionRef = useRef<HTMLDivElement>(null);
-  const lineRef = useRef<HTMLDivElement>(null);
-
-  useGSAP(
-    () => {
-      const mm = gsap.matchMedia();
-
-      mm.add("(prefers-reduced-motion: no-preference)", () => {
-        if (!lineRef.current || !sectionRef.current) return;
-
-        const tween = gsap.fromTo(
-          lineRef.current,
-          { scaleX: 0 },
-          {
-            scaleX: 1,
-            ease: "none",
-            transformOrigin: "left center",
-            scrollTrigger: {
-              trigger: sectionRef.current,
-              start: "top 70%",
-              end: "bottom 55%",
-              scrub: 0.5,
-            },
-          },
-        );
-
-        return () => tween.scrollTrigger?.kill();
-      });
-
-      return () => mm.revert();
-    },
-    { scope: sectionRef },
-  );
+  const reduceMotion = useReducedMotion();
+  const { scrollYProgress } = useScroll({
+    target: sectionRef,
+    offset: ["start 0.7", "end 0.55"],
+  });
 
   return (
     <section ref={sectionRef} className="py-20 md:py-24">
@@ -64,7 +32,10 @@ export default function HowItWorks() {
 
         <div className="relative">
           <div className="absolute top-5 right-0 left-0 hidden h-px bg-gray-200 md:block">
-            <div ref={lineRef} className="bg-brand-purple h-px w-full" />
+            <motion.div
+              style={{ scaleX: reduceMotion ? 1 : scrollYProgress }}
+              className="bg-brand-purple h-px w-full origin-left"
+            />
           </div>
 
           <div className="grid gap-8 md:grid-cols-3">

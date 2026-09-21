@@ -3,14 +3,16 @@
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Bike, Car, LayoutDashboard, LogOut } from "lucide-react";
+import { Bike, Car, FileText, LayoutDashboard, LogOut, type LucideIcon } from "lucide-react";
 import { logoutAction } from "@/app/admin/actions";
 
-const NAV = [
+const NAV: { href: string; label: string; icon: LucideIcon; exact?: boolean }[] = [
   { href: "/admin", label: "Resumen", icon: LayoutDashboard, exact: true },
   { href: "/admin/autos", label: "Autos", icon: Car },
   { href: "/admin/motos", label: "Motos", icon: Bike },
 ];
+
+const DOC_NAV: typeof NAV = [{ href: "/admin/propuestas", label: "Propuestas", icon: FileText }];
 
 interface Props {
   user: { name: string; email: string; role: string };
@@ -42,7 +44,7 @@ export default function Sidebar({ user }: Props) {
   return (
     <>
       {/* Desktop */}
-      <aside className="fixed inset-y-0 left-0 z-30 hidden w-64 flex-col bg-[#0b1f33] lg:flex">
+      <aside className="fixed inset-y-0 left-0 z-30 hidden w-64 flex-col bg-[#0b1f33] lg:flex print:hidden">
         <div className="flex items-center gap-3 px-6 py-6">
           <span className="flex size-10 items-center justify-center rounded-xl bg-white/10">
             <Image src="/logo-icon-white.png" alt="" width={22} height={30} className="h-6 w-auto" />
@@ -54,29 +56,36 @@ export default function Sidebar({ user }: Props) {
         </div>
 
         <nav className="flex-1 space-y-1 px-3 py-2">
-          <p className="px-3 pb-2 text-[11px] font-semibold tracking-widest text-slate-500 uppercase">
-            Consultas
-          </p>
-          {NAV.map(({ href, label, icon: Icon, exact }) => {
-            const active = isActive(href, exact);
-            return (
-              <Link
-                key={href}
-                href={href}
-                className={`relative flex items-center gap-3 rounded-[10px] px-3 py-2.5 text-sm font-medium transition ${
-                  active
-                    ? "bg-gradient-to-r from-sky-500/20 to-violet-500/10 text-white"
-                    : "text-slate-400 hover:bg-white/5 hover:text-white"
-                }`}
-              >
-                {active && (
-                  <span className="absolute top-2 bottom-2 left-0 w-[3px] rounded-full bg-sky-400" />
-                )}
-                <Icon className={`size-[18px] ${active ? "text-sky-300" : ""}`} />
-                {label}
-              </Link>
-            );
-          })}
+          {[
+            { title: "Consultas", items: NAV },
+            { title: "Documentos", items: DOC_NAV },
+          ].map(({ title, items }) => (
+            <div key={title} className="space-y-1 pb-3">
+              <p className="px-3 pb-2 text-[11px] font-semibold tracking-widest text-slate-500 uppercase">
+                {title}
+              </p>
+              {items.map(({ href, label, icon: Icon, exact }) => {
+                const active = isActive(href, exact);
+                return (
+                  <Link
+                    key={href}
+                    href={href}
+                    className={`relative flex items-center gap-3 rounded-[10px] px-3 py-2.5 text-sm font-medium transition ${
+                      active
+                        ? "bg-gradient-to-r from-sky-500/20 to-violet-500/10 text-white"
+                        : "text-slate-400 hover:bg-white/5 hover:text-white"
+                    }`}
+                  >
+                    {active && (
+                      <span className="absolute top-2 bottom-2 left-0 w-[3px] rounded-full bg-sky-400" />
+                    )}
+                    <Icon className={`size-[18px] ${active ? "text-sky-300" : ""}`} />
+                    {label}
+                  </Link>
+                );
+              })}
+            </div>
+          ))}
         </nav>
 
         <div className="m-3 rounded-[14px] border border-white/10 bg-white/5 p-3">
@@ -97,9 +106,9 @@ export default function Sidebar({ user }: Props) {
       </aside>
 
       {/* Mobile */}
-      <header className="sticky top-0 z-30 flex items-center gap-1 overflow-x-auto bg-[#0b1f33] px-3 py-2.5 lg:hidden">
+      <header className="sticky top-0 z-30 flex items-center gap-1 overflow-x-auto bg-[#0b1f33] px-3 py-2.5 lg:hidden print:hidden">
         <Image src="/logo-icon-white.png" alt="" width={22} height={30} className="mx-2 h-6 w-auto shrink-0" />
-        {NAV.map(({ href, label, icon: Icon, exact }) => (
+        {[...NAV, ...DOC_NAV].map(({ href, label, icon: Icon, exact }) => (
           <Link
             key={href}
             href={href}
